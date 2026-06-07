@@ -253,12 +253,6 @@ export function EnrollmentWizardPage({
             />
           ) : null}
         </div>
-
-        <footer className="text-sm text-slate-500">
-          {selectedCategory !== 'all'
-            ? `현재 카테고리: ${COURSE_CATEGORY_LABELS[selectedCategory]}`
-            : '전체 카테고리'}
-        </footer>
       </div>
     </main>
   );
