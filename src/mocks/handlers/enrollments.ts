@@ -23,6 +23,31 @@ function buildInvalidInputDetails(request: EnrollmentRequest) {
     details['applicant.phone'] = '전화번호를 입력해 주세요.';
   }
 
+  if (request.type === 'group') {
+    if (!request.group.organizationName.trim()) {
+      details['group.organizationName'] = '단체명을 입력해 주세요.';
+    }
+
+    if (!request.group.contactPerson.trim()) {
+      details['group.contactPerson'] = '담당자 연락처를 입력해 주세요.';
+    }
+
+    request.group.participants.forEach((participant, index) => {
+      if (!participant.name.trim()) {
+        details[`group.participants.${index}.name`] =
+          '참가자 이름을 입력해 주세요.';
+      }
+
+      if (!participant.email.trim()) {
+        details[`group.participants.${index}.email`] =
+          '참가자 이메일을 입력해 주세요.';
+      } else if (!participant.email.includes('@')) {
+        details[`group.participants.${index}.email`] =
+          '참가자 이메일 형식으로 입력해 주세요.';
+      }
+    });
+  }
+
   return details;
 }
 
