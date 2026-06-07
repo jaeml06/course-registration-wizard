@@ -120,7 +120,9 @@ export function ApplicantInfoStep({
         >
           <textarea
             id="applicant-motivation"
-            className={inputClass(Boolean(errors['applicant.motivation']))}
+            className={textareaClass(
+              Boolean(errors['applicant.motivation']),
+            )}
             value={formState.applicant.motivation}
             aria-invalid={Boolean(errors['applicant.motivation'])}
             aria-describedby={
@@ -151,6 +153,14 @@ export function ApplicantInfoStep({
 }
 
 function inputClass(hasError: boolean) {
+  return `${controlClass(hasError)} min-h-10`;
+}
+
+function textareaClass(hasError: boolean) {
+  return `${controlClass(hasError)} min-h-32 resize-y`;
+}
+
+function controlClass(hasError: boolean) {
   return `w-full rounded-md border bg-white px-3 py-2 text-sm outline-none focus:ring-2 ${
     hasError
       ? 'border-red-400 focus:ring-red-200'

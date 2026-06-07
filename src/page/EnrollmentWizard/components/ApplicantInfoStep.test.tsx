@@ -59,6 +59,15 @@ describe('ApplicantInfoStep', () => {
     );
   });
 
+  test('공통 정보 입력칸은 필드 종류에 맞는 높이 스타일을 사용한다', () => {
+    renderApplicantInfoStep();
+
+    expect(screen.getByLabelText('이름')).toHaveClass('min-h-10');
+    expect(screen.getByLabelText('이메일')).toHaveClass('min-h-10');
+    expect(screen.getByLabelText('전화번호')).toHaveClass('min-h-10');
+    expect(screen.getByLabelText('수강 동기')).toHaveClass('min-h-32');
+  });
+
   test('개인 신청에서는 단체 필드를 숨긴다', () => {
     renderApplicantInfoStep();
 

@@ -21,7 +21,7 @@ export function FormField({
   const helperId = `${htmlFor}-helper`;
 
   return (
-    <div className="grid gap-2">
+    <div className="grid self-start gap-2">
       <label className="text-sm font-semibold text-slate-900" htmlFor={htmlFor}>
         {label}
       </label>
