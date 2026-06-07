@@ -1,16 +1,6 @@
-import { setupServer } from 'msw/node';
-
 import { COURSE_CATEGORIES, COURSES } from '../../constants/courses';
 
-import { courseHandlers } from './courses';
-
-const server = setupServer(...courseHandlers);
-
 describe('courseHandlers', () => {
-  beforeAll(() => server.listen());
-  afterEach(() => server.resetHandlers());
-  afterAll(() => server.close());
-
   test('카테고리 없이 조회하면 전체 강의와 카테고리를 반환한다', async () => {
     const response = await fetch('http://localhost/api/courses');
     const body = await response.json();
