@@ -1,11 +1,15 @@
-import { http, HttpResponse } from 'msw';
+import { delay, http, HttpResponse } from 'msw';
 
 import { COURSE_CATEGORIES, COURSES } from '../../constants/courses';
 import type { CourseCategory } from '../../type/course';
 import type { CourseListResponse } from '../../type/course';
 
 export const courseHandlers = [
-  http.get('*/api/courses', ({ request }) => {
+  http.get('*/api/courses', async ({ request }) => {
+    if (shouldDelayCourseListResponse()) {
+      await delay(1000);
+    }
+
     const url = new URL(request.url);
     const category = url.searchParams.get('category');
 
@@ -32,3 +36,11 @@ export const courseHandlers = [
     return HttpResponse.json(response);
   }),
 ];
+
+function shouldDelayCourseListResponse() {
+  return (
+    import.meta.env.DEV &&
+    typeof navigator !== 'undefined' &&
+    'serviceWorker' in navigator
+  );
+}
