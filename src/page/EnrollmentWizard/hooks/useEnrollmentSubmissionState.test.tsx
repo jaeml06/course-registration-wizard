@@ -22,6 +22,21 @@ describe('useEnrollmentSubmissionState', () => {
     expect(result.current.result).toBeNull();
   });
 
+  test('기본 제출 함수는 실제 신청 API 성공 응답을 처리한다', async () => {
+    const payload = createEnrollmentPayload(buildPersonalDraft());
+    const { result } = renderHook(() => useEnrollmentSubmissionState());
+
+    let submitResult: Awaited<ReturnType<typeof result.current.submit>>;
+
+    await act(async () => {
+      submitResult = await result.current.submit(payload);
+    });
+
+    expect(submitResult!.ok).toBe(true);
+    expect(result.current.status).toBe('succeeded');
+    expect(result.current.result?.enrollmentId).toMatch(/^ENR-/);
+  });
+
   test('제출 성공 시 succeeded 상태와 결과를 저장한다', async () => {
     const submitEnrollment = vi.fn(async () => createResponse());
     const payload = createEnrollmentPayload(buildPersonalDraft());
@@ -29,10 +44,17 @@ describe('useEnrollmentSubmissionState', () => {
       useEnrollmentSubmissionState({ submitEnrollment }),
     );
 
+    let submitResult: Awaited<ReturnType<typeof result.current.submit>>;
+
     await act(async () => {
-      await result.current.submit(payload);
+      submitResult = await result.current.submit(payload);
     });
 
+    expect(submitResult!).toEqual({
+      ok: true,
+      response: createResponse(),
+      fieldErrors: {},
+    });
     expect(result.current.status).toBe('succeeded');
     expect(result.current.result).toEqual(createResponse());
   });
@@ -49,10 +71,21 @@ describe('useEnrollmentSubmissionState', () => {
       useEnrollmentSubmissionState({ submitEnrollment }),
     );
 
+    let submitResult: Awaited<ReturnType<typeof result.current.submit>>;
+
     await act(async () => {
-      await result.current.submit(payload);
+      submitResult = await result.current.submit(payload);
     });
 
+    expect(submitResult!).toEqual({
+      ok: false,
+      response: null,
+      message:
+        '선택한 강의의 정원이 마감되었습니다. 다른 강의를 선택해 주세요.',
+      fieldErrors: {
+        selectedCourseId: '정원이 마감된 강의입니다.',
+      },
+    });
     expect(result.current.status).toBe('failed');
     expect(result.current.errorMessage).toBe(
       '선택한 강의의 정원이 마감되었습니다. 다른 강의를 선택해 주세요.',
