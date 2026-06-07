@@ -3,6 +3,7 @@ import {
   createInitialGroupForm,
   hasMeaningfulGroupData,
   switchEnrollmentType,
+  syncParticipantsToHeadCount,
   updateApplicantField,
   updateGroupField,
 } from './enrollmentFormState';
@@ -78,6 +79,58 @@ describe('enrollmentFormState', () => {
       type: 'personal',
       group: null,
     });
+  });
+
+  test('신청 인원수를 늘리면 기존 참가자를 유지하고 빈 참가자를 추가한다', () => {
+    const group = {
+      ...createInitialGroupForm(),
+      participants: [
+        { name: '김참가', email: 'member1@example.com' },
+        { name: '이참가', email: 'member2@example.com' },
+      ],
+    };
+
+    expect(syncParticipantsToHeadCount(group, 4).participants).toEqual([
+      { name: '김참가', email: 'member1@example.com' },
+      { name: '이참가', email: 'member2@example.com' },
+      { name: '', email: '' },
+      { name: '', email: '' },
+    ]);
+  });
+
+  test('신청 인원수를 줄이면 앞 참가자만 유지한다', () => {
+    const group = {
+      ...createInitialGroupForm(),
+      headCount: 4,
+      participants: [
+        { name: '김참가', email: 'member1@example.com' },
+        { name: '이참가', email: 'member2@example.com' },
+        { name: '박참가', email: 'member3@example.com' },
+        { name: '최참가', email: 'member4@example.com' },
+      ],
+    };
+
+    expect(syncParticipantsToHeadCount(group, 2).participants).toEqual([
+      { name: '김참가', email: 'member1@example.com' },
+      { name: '이참가', email: 'member2@example.com' },
+    ]);
+  });
+
+  test('신청 인원수는 10명을 초과해 입력해도 10명으로 제한한다', () => {
+    const groupState = updateGroupField(
+      switchEnrollmentType(createInitialEnrollmentFormState(), 'group'),
+      'headCount',
+      622,
+    );
+
+    expect(groupState.type).toBe('group');
+
+    if (groupState.type !== 'group') {
+      return;
+    }
+
+    expect(groupState.group.headCount).toBe(10);
+    expect(groupState.group.participants).toHaveLength(10);
   });
 
   test('신청자 필드를 불변 업데이트한다', () => {

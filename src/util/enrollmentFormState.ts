@@ -14,6 +14,7 @@ interface SwitchEnrollmentTypeOptions {
 }
 
 const EMPTY_PARTICIPANT = { name: '', email: '' };
+const MAX_GROUP_HEAD_COUNT = 10;
 
 export function createInitialApplicantForm(): ApplicantForm {
   return {
@@ -114,11 +115,41 @@ export function updateGroupField(
     return state;
   }
 
+  if (field === 'headCount') {
+    return {
+      ...state,
+      group: syncParticipantsToHeadCount(state.group, Number(value)),
+    };
+  }
+
   return {
     ...state,
     group: {
       ...state.group,
       [field]: value,
+    },
+  };
+}
+
+export function updateParticipantField(
+  state: EnrollmentFormState,
+  index: number,
+  field: 'name' | 'email',
+  value: string,
+): EnrollmentFormState {
+  if (state.type !== 'group') {
+    return state;
+  }
+
+  return {
+    ...state,
+    group: {
+      ...state.group,
+      participants: state.group.participants.map((participant, currentIndex) =>
+        currentIndex === index
+          ? { ...participant, [field]: value }
+          : participant,
+      ),
     },
   };
 }
@@ -140,6 +171,28 @@ export function updateTermsAgreement(
   return {
     ...state,
     agreedToTerms,
+  };
+}
+
+export function syncParticipantsToHeadCount(
+  group: GroupEnrollmentForm,
+  headCount: number,
+): GroupEnrollmentForm {
+  const normalizedHeadCount = Number.isFinite(headCount)
+    ? Math.min(headCount, MAX_GROUP_HEAD_COUNT)
+    : 2;
+  const participants = Array.from(
+    { length: normalizedHeadCount },
+    (_, index) =>
+      group.participants[index]
+        ? { ...group.participants[index] }
+        : { ...EMPTY_PARTICIPANT },
+  );
+
+  return {
+    ...group,
+    headCount: normalizedHeadCount,
+    participants,
   };
 }
 
