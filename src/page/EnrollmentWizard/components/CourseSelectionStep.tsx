@@ -1,7 +1,4 @@
-import {
-  COURSE_CATEGORY_LABELS,
-  type COURSE_CATEGORIES,
-} from '../../../constants/courses';
+import { COURSE_CATEGORY_LABELS } from '../../../constants/courses';
 import type { Course, CourseCategory } from '../../../type/course';
 import type {
   EnrollmentType,
@@ -20,12 +17,13 @@ type CourseListStatus = 'loading' | 'ready' | 'failed';
 
 interface CourseSelectionStepProps {
   courses: Course[];
-  categories: typeof COURSE_CATEGORIES;
+  categories: CourseCategory[];
   selectedCategory: CourseCategoryFilter;
   selectedCourseId: string;
   enrollmentType: EnrollmentType;
   errors: ValidationErrors;
   listStatus: CourseListStatus;
+  errorMessage?: string | null;
   onCategoryChange: (category: CourseCategoryFilter) => void;
   onSelectCourse: (courseId: string) => void;
   onTypeChange: (type: EnrollmentType) => void;
@@ -48,6 +46,7 @@ export function CourseSelectionStep({
   enrollmentType,
   errors,
   listStatus,
+  errorMessage,
   onCategoryChange,
   onSelectCourse,
   onTypeChange,
@@ -128,7 +127,7 @@ export function CourseSelectionStep({
       {listStatus === 'failed' ? (
         <div className="rounded-md border border-red-200 bg-red-50 p-4">
           <p className="text-sm font-semibold text-red-800">
-            강의 목록을 불러오지 못했습니다.
+            {errorMessage ?? '강의 목록을 불러오지 못했습니다.'}
           </p>
           <button
             type="button"

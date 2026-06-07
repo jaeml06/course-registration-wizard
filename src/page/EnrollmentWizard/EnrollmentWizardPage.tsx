@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   COURSE_CATEGORIES,
-  COURSES,
   COURSE_CATEGORY_LABELS,
 } from '../../constants/courses';
 import { useFunnel } from '../../hooks/useFunnel';
-import type { CourseCategory } from '../../type/course';
+import { useCoursesQuery } from '../../hooks/query/useCoursesQuery';
+import type { Course, CourseCategory } from '../../type/course';
 import type {
   EnrollmentRequest,
   EnrollmentResponse,
@@ -35,30 +35,28 @@ const STEP_LABELS: Record<EnrollmentStep, string> = {
   applicant: '수강생 정보',
   review: '확인 및 제출',
 };
+const EMPTY_COURSES: Course[] = [];
 
 export function EnrollmentWizardPage({
   submitEnrollment,
 }: EnrollmentWizardPageProps) {
   const [selectedCategory, setSelectedCategory] =
     useState<CourseCategoryFilter>('all');
-  const [listStatus, setListStatus] = useState<'loading' | 'ready' | 'failed'>(
-    'ready',
-  );
+  const coursesQuery = useCoursesQuery(selectedCategory);
+  const courses = coursesQuery.data?.courses ?? EMPTY_COURSES;
+  const categories = coursesQuery.data?.categories ?? COURSE_CATEGORIES;
+  const listStatus = coursesQuery.isPending
+    ? 'loading'
+    : coursesQuery.isError
+      ? 'failed'
+      : 'ready';
   const { currentStep, currentIndex, canGoBack, back, next, goTo } =
     useFunnel(STEPS);
   const form = useEnrollmentFormState({
-    courses: COURSES,
+    courses,
   });
   const submission = useEnrollmentSubmissionState({ submitEnrollment });
   const firstErrorFieldRef = useRef<FieldPath | null>(null);
-
-  const visibleCourses = useMemo(() => {
-    if (selectedCategory === 'all') {
-      return COURSES;
-    }
-
-    return COURSES.filter((course) => course.category === selectedCategory);
-  }, [selectedCategory]);
 
   useEffect(() => {
     if (!firstErrorFieldRef.current) {
@@ -75,6 +73,26 @@ export function EnrollmentWizardPage({
 
     firstErrorFieldRef.current = null;
   }, [form.errors, currentStep]);
+
+  useEffect(() => {
+    if (listStatus !== 'ready' || !form.formState.selectedCourseId) {
+      return;
+    }
+
+    const hasSelectedCourse = courses.some(
+      (course) => course.id === form.formState.selectedCourseId,
+    );
+
+    if (hasSelectedCourse) {
+      return;
+    }
+
+    form.updateSelectedCourse('');
+    form.setErrors({
+      ...form.errors,
+      selectedCourseId: '수강할 강의를 선택해 주세요.',
+    });
+  }, [courses, form, listStatus]);
 
   function handleNext() {
     const nextErrors = form.getStepErrors(currentStep);
@@ -122,35 +140,43 @@ export function EnrollmentWizardPage({
       return;
     }
 
-    await submission.submit(createEnrollmentPayload(form.formState));
+    const submitResult = await submission.submit(
+      createEnrollmentPayload(form.formState),
+    );
 
-    if (Object.keys(submission.fieldErrors).length > 0) {
-      form.setErrors(submission.fieldErrors);
+    if (!submitResult.ok && Object.keys(submitResult.fieldErrors).length > 0) {
+      form.setErrors({
+        ...form.errors,
+        ...submitResult.fieldErrors,
+      });
     }
   }
 
   function handleRetry() {
     submission.retry();
+    form.setErrors({});
   }
 
   function renderCurrentStep() {
     if (currentStep === 'course') {
       return (
         <CourseSelectionStep
-          courses={visibleCourses}
-          categories={COURSE_CATEGORIES}
+          courses={courses}
+          categories={categories}
           selectedCategory={selectedCategory}
           selectedCourseId={form.formState.selectedCourseId}
           enrollmentType={form.formState.type}
           errors={form.errors}
           listStatus={listStatus}
-          onCategoryChange={(category) => {
-            setSelectedCategory(category);
-            setListStatus(category === 'all' ? 'ready' : listStatus);
-          }}
+          errorMessage={
+            coursesQuery.isError ? '강의 목록을 불러오지 못했습니다.' : null
+          }
+          onCategoryChange={setSelectedCategory}
           onSelectCourse={form.updateSelectedCourse}
           onTypeChange={form.switchType}
-          onRetry={() => setListStatus('ready')}
+          onRetry={() => {
+            void coursesQuery.refetch();
+          }}
         />
       );
     }
