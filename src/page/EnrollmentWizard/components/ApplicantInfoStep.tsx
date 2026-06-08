@@ -8,8 +8,8 @@ import type {
 } from '../../../type/enrollmentForm';
 import { getRemainingSeats } from '../../../util/courseCapacity';
 
-import { FormField } from './FormField';
 import { GroupFields } from './GroupFields';
+import { TextField } from './TextField';
 
 interface ApplicantInfoStepProps {
   formState: EnrollmentFormState;
@@ -28,6 +28,7 @@ interface ApplicantInfoStepProps {
   onBlur: (field: FieldPath) => void;
 }
 
+// 2단계 화면: 공통(신청자) 필드를 그리고, 단체 신청일 때만 GroupFields를 덧붙인다.
 export function ApplicantInfoStep({
   formState,
   selectedCourse,
@@ -63,86 +64,44 @@ export function ApplicantInfoStep({
         className="grid min-w-0 grid-cols-1 gap-5 md:grid-cols-2"
         data-testid="applicant-fields-grid"
       >
-        <FormField
+        <TextField
+          field="applicant.name"
           label="이름"
-          htmlFor="applicant-name"
+          value={formState.applicant.name}
           error={errors['applicant.name']}
-        >
-          <input
-            id="applicant-name"
-            className={inputClass(Boolean(errors['applicant.name']))}
-            value={formState.applicant.name}
-            aria-invalid={Boolean(errors['applicant.name'])}
-            aria-describedby={
-              errors['applicant.name'] ? 'applicant-name-error' : undefined
-            }
-            onChange={(event) => onApplicantChange('name', event.target.value)}
-            onBlur={() => onBlur('applicant.name')}
-          />
-        </FormField>
+          onChange={(value) => onApplicantChange('name', value)}
+          onBlur={onBlur}
+        />
 
-        <FormField
+        <TextField
+          field="applicant.email"
           label="이메일"
-          htmlFor="applicant-email"
+          type="email"
+          value={formState.applicant.email}
           error={errors['applicant.email']}
-        >
-          <input
-            id="applicant-email"
-            type="email"
-            className={inputClass(Boolean(errors['applicant.email']))}
-            value={formState.applicant.email}
-            aria-invalid={Boolean(errors['applicant.email'])}
-            aria-describedby={
-              errors['applicant.email'] ? 'applicant-email-error' : undefined
-            }
-            onChange={(event) => onApplicantChange('email', event.target.value)}
-            onBlur={() => onBlur('applicant.email')}
-          />
-        </FormField>
+          onChange={(value) => onApplicantChange('email', value)}
+          onBlur={onBlur}
+        />
 
-        <FormField
+        <TextField
+          field="applicant.phone"
           label="전화번호"
-          htmlFor="applicant-phone"
+          value={formState.applicant.phone}
           error={errors['applicant.phone']}
-        >
-          <input
-            id="applicant-phone"
-            className={inputClass(Boolean(errors['applicant.phone']))}
-            value={formState.applicant.phone}
-            aria-invalid={Boolean(errors['applicant.phone'])}
-            aria-describedby={
-              errors['applicant.phone'] ? 'applicant-phone-error' : undefined
-            }
-            onChange={(event) => onApplicantChange('phone', event.target.value)}
-            onBlur={() => onBlur('applicant.phone')}
-          />
-        </FormField>
+          onChange={(value) => onApplicantChange('phone', value)}
+          onBlur={onBlur}
+        />
 
-        <FormField
+        <TextField
+          field="applicant.motivation"
           label="수강 동기"
-          htmlFor="applicant-motivation"
-          error={errors['applicant.motivation']}
+          multiline
           helperText="선택 입력이며 300자 이하로 작성할 수 있습니다."
-        >
-          <textarea
-            id="applicant-motivation"
-            className={textareaClass(
-              Boolean(errors['applicant.motivation']),
-            )}
-            value={formState.applicant.motivation}
-            aria-invalid={Boolean(errors['applicant.motivation'])}
-            aria-describedby={
-              errors['applicant.motivation']
-                ? 'applicant-motivation-error'
-                : undefined
-            }
-            rows={4}
-            onChange={(event) =>
-              onApplicantChange('motivation', event.target.value)
-            }
-            onBlur={() => onBlur('applicant.motivation')}
-          />
-        </FormField>
+          value={formState.applicant.motivation}
+          error={errors['applicant.motivation']}
+          onChange={(value) => onApplicantChange('motivation', value)}
+          onBlur={onBlur}
+        />
       </div>
 
       {formState.type === 'group' ? (
@@ -156,20 +115,4 @@ export function ApplicantInfoStep({
       ) : null}
     </section>
   );
-}
-
-function inputClass(hasError: boolean) {
-  return `${controlClass(hasError)} min-h-10`;
-}
-
-function textareaClass(hasError: boolean) {
-  return `${controlClass(hasError)} min-h-32 resize-y`;
-}
-
-function controlClass(hasError: boolean) {
-  return `min-w-0 w-full rounded-md border bg-white px-3 py-2 text-sm outline-none focus:ring-2 ${
-    hasError
-      ? 'border-red-400 focus:ring-red-200'
-      : 'border-slate-300 focus:ring-slate-200'
-  }`;
 }

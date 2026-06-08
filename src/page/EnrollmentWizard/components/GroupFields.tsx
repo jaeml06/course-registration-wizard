@@ -3,9 +3,10 @@ import type {
   GroupEnrollmentForm,
   ValidationErrors,
 } from '../../../type/enrollmentForm';
-
 import { FormField } from './FormField';
 import { NumericInput } from './NumericInput';
+import { TextField } from './TextField';
+import { textControlClassName } from './textControlClassName';
 
 interface GroupFieldsProps {
   group: GroupEnrollmentForm;
@@ -22,6 +23,8 @@ interface GroupFieldsProps {
   onBlur: (field: FieldPath) => void;
 }
 
+// 단체 신청 전용 필드: 단체명, 인원수(NumericInput), 인원수만큼 동적으로 생기는 참가자 명단,
+// 담당자 연락처. 참가자 행은 group.participants 길이에 맞춰 자동으로 늘고 준다.
 export function GroupFields({
   group,
   errors,
@@ -34,27 +37,14 @@ export function GroupFields({
       <h3 className="min-w-0 break-words text-base font-bold text-slate-950">
         단체 신청 정보
       </h3>
-      <FormField
+      <TextField
+        field="group.organizationName"
         label="단체명"
-        htmlFor="group-organization-name"
+        value={group.organizationName}
         error={errors['group.organizationName']}
-      >
-        <input
-          id="group-organization-name"
-          className={inputClass(Boolean(errors['group.organizationName']))}
-          value={group.organizationName}
-          aria-invalid={Boolean(errors['group.organizationName'])}
-          aria-describedby={
-            errors['group.organizationName']
-              ? 'group-organization-name-error'
-              : undefined
-          }
-          onChange={(event) =>
-            onGroupChange('organizationName', event.target.value)
-          }
-          onBlur={() => onBlur('group.organizationName')}
-        />
-      </FormField>
+        onChange={(value) => onGroupChange('organizationName', value)}
+        onBlur={onBlur}
+      />
 
       <FormField
         label="신청 인원수"
@@ -67,7 +57,7 @@ export function GroupFields({
           min={2}
           max={10}
           fallbackValue={2}
-          className={inputClass(Boolean(errors['group.headCount']))}
+          className={textControlClassName(Boolean(errors['group.headCount']))}
           value={group.headCount}
           aria-invalid={Boolean(errors['group.headCount'])}
           aria-describedby={
@@ -85,8 +75,6 @@ export function GroupFields({
         {group.participants.map((participant, index) => {
           const nameField = `group.participants.${index}.name` as FieldPath;
           const emailField = `group.participants.${index}.email` as FieldPath;
-          const nameId = `group-participant-${index}-name`;
-          const emailId = `group-participant-${index}-email`;
 
           return (
             <div
@@ -94,79 +82,36 @@ export function GroupFields({
               className="grid min-w-0 grid-cols-1 gap-3 rounded-md border border-slate-200 bg-white p-3 md:grid-cols-2"
               data-testid={`group-participant-row-${index}`}
             >
-              <FormField
+              <TextField
+                field={nameField}
                 label={`참가자 ${index + 1} 이름`}
-                htmlFor={nameId}
+                value={participant.name}
                 error={errors[nameField]}
-              >
-                <input
-                  id={nameId}
-                  className={inputClass(Boolean(errors[nameField]))}
-                  value={participant.name}
-                  aria-invalid={Boolean(errors[nameField])}
-                  aria-describedby={
-                    errors[nameField] ? `${nameId}-error` : undefined
-                  }
-                  onChange={(event) =>
-                    onParticipantChange(index, 'name', event.target.value)
-                  }
-                  onBlur={() => onBlur(nameField)}
-                />
-              </FormField>
-              <FormField
+                onChange={(value) => onParticipantChange(index, 'name', value)}
+                onBlur={onBlur}
+              />
+              <TextField
+                field={emailField}
                 label={`참가자 ${index + 1} 이메일`}
-                htmlFor={emailId}
+                type="email"
+                value={participant.email}
                 error={errors[emailField]}
-              >
-                <input
-                  id={emailId}
-                  type="email"
-                  className={inputClass(Boolean(errors[emailField]))}
-                  value={participant.email}
-                  aria-invalid={Boolean(errors[emailField])}
-                  aria-describedby={
-                    errors[emailField] ? `${emailId}-error` : undefined
-                  }
-                  onChange={(event) =>
-                    onParticipantChange(index, 'email', event.target.value)
-                  }
-                  onBlur={() => onBlur(emailField)}
-                />
-              </FormField>
+                onChange={(value) => onParticipantChange(index, 'email', value)}
+                onBlur={onBlur}
+              />
             </div>
           );
         })}
       </div>
 
-      <FormField
+      <TextField
+        field="group.contactPerson"
         label="담당자 연락처"
-        htmlFor="group-contact-person"
+        value={group.contactPerson}
         error={errors['group.contactPerson']}
-      >
-        <input
-          id="group-contact-person"
-          className={inputClass(Boolean(errors['group.contactPerson']))}
-          value={group.contactPerson}
-          aria-invalid={Boolean(errors['group.contactPerson'])}
-          aria-describedby={
-            errors['group.contactPerson']
-              ? 'group-contact-person-error'
-              : undefined
-          }
-          onChange={(event) =>
-            onGroupChange('contactPerson', event.target.value)
-          }
-          onBlur={() => onBlur('group.contactPerson')}
-        />
-      </FormField>
+        onChange={(value) => onGroupChange('contactPerson', value)}
+        onBlur={onBlur}
+      />
     </div>
   );
-}
-
-function inputClass(hasError: boolean) {
-  return `min-h-10 min-w-0 w-full rounded-md border bg-white px-3 py-2 text-sm outline-none focus:ring-2 ${
-    hasError
-      ? 'border-red-400 focus:ring-red-200'
-      : 'border-slate-300 focus:ring-slate-200'
-  }`;
 }
