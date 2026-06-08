@@ -30,8 +30,10 @@ export function GroupFields({
   onBlur,
 }: GroupFieldsProps) {
   return (
-    <div className="grid gap-5 rounded-md border border-slate-200 bg-slate-50 p-4">
-      <h3 className="text-base font-bold text-slate-950">단체 신청 정보</h3>
+    <div className="grid min-w-0 gap-5 rounded-md border border-slate-200 bg-slate-50 p-4">
+      <h3 className="min-w-0 break-words text-base font-bold text-slate-950">
+        단체 신청 정보
+      </h3>
       <FormField
         label="단체명"
         htmlFor="group-organization-name"
@@ -76,8 +78,10 @@ export function GroupFields({
         />
       </FormField>
 
-      <div className="grid gap-4">
-        <h4 className="text-sm font-bold text-slate-900">참가자 명단</h4>
+      <div className="grid min-w-0 gap-4">
+        <h4 className="min-w-0 break-words text-sm font-bold text-slate-900">
+          참가자 명단
+        </h4>
         {group.participants.map((participant, index) => {
           const nameField = `group.participants.${index}.name` as FieldPath;
           const emailField = `group.participants.${index}.email` as FieldPath;
@@ -87,7 +91,8 @@ export function GroupFields({
           return (
             <div
               key={index}
-              className="grid gap-3 rounded-md border border-slate-200 bg-white p-3 md:grid-cols-2"
+              className="grid min-w-0 grid-cols-1 gap-3 rounded-md border border-slate-200 bg-white p-3 md:grid-cols-2"
+              data-testid={`group-participant-row-${index}`}
             >
               <FormField
                 label={`참가자 ${index + 1} 이름`}
@@ -159,7 +164,7 @@ export function GroupFields({
 }
 
 function inputClass(hasError: boolean) {
-  return `w-full rounded-md border bg-white px-3 py-2 text-sm outline-none focus:ring-2 ${
+  return `min-h-10 min-w-0 w-full rounded-md border bg-white px-3 py-2 text-sm outline-none focus:ring-2 ${
     hasError
       ? 'border-red-400 focus:ring-red-200'
       : 'border-slate-300 focus:ring-slate-200'

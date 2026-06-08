@@ -133,4 +133,23 @@ describe('ApplicantInfoStep', () => {
 
     expect(onGroupChange).toHaveBeenLastCalledWith('headCount', 3);
   });
+
+  test('모바일에서 공통 입력 필드와 긴 오류 메시지가 세로 흐름과 줄바꿈 class를 유지한다', () => {
+    renderApplicantInfoStep({
+      errors: {
+        'applicant.email':
+          '아주 긴 이메일 오류 메시지가 모바일 폭에서도 줄바꿈되어 주변 입력 필드와 겹치지 않아야 합니다.',
+      },
+    });
+
+    expect(screen.getByTestId('applicant-fields-grid')).toHaveClass(
+      'grid-cols-1',
+      'min-w-0',
+      'md:grid-cols-2',
+    );
+    expect(screen.getByLabelText('이메일')).toHaveClass('min-w-0');
+    expect(
+      screen.getByText(/아주 긴 이메일 오류 메시지/),
+    ).toHaveClass('break-words');
+  });
 });

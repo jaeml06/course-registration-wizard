@@ -9,7 +9,10 @@ export function FieldError({ id, message }: FieldErrorProps) {
   }
 
   return (
-    <p id={id} className="mt-2 text-sm font-medium text-red-700">
+    <p
+      id={id}
+      className="mt-2 min-w-0 break-words text-sm font-medium text-red-700"
+    >
       {message}
     </p>
   );

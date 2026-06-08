@@ -38,25 +38,31 @@ export function ApplicantInfoStep({
   onBlur,
 }: ApplicantInfoStepProps) {
   return (
-    <section aria-labelledby="applicant-step-title" className="grid gap-6">
-      <div>
+    <section
+      aria-labelledby="applicant-step-title"
+      className="grid min-w-0 gap-6"
+    >
+      <div className="min-w-0">
         <h2
           id="applicant-step-title"
-          className="text-2xl font-bold tracking-normal"
+          className="break-words text-2xl font-bold tracking-normal"
         >
           2단계 수강생 정보 입력
         </h2>
-        <p className="mt-2 text-sm text-slate-600">
+        <p className="mt-2 min-w-0 break-words text-sm text-slate-600">
           대표 신청자 정보를 입력합니다. 단체 신청은 참가자 명단까지 확인합니다.
         </p>
         {selectedCourse ? (
-          <p className="mt-2 text-sm font-semibold text-slate-700">
+          <p className="mt-2 min-w-0 break-words text-sm font-semibold text-slate-700">
             선택 강의 잔여 정원: {getRemainingSeats(selectedCourse)}명
           </p>
         ) : null}
       </div>
 
-      <div className="grid gap-5 md:grid-cols-2">
+      <div
+        className="grid min-w-0 grid-cols-1 gap-5 md:grid-cols-2"
+        data-testid="applicant-fields-grid"
+      >
         <FormField
           label="이름"
           htmlFor="applicant-name"
@@ -161,7 +167,7 @@ function textareaClass(hasError: boolean) {
 }
 
 function controlClass(hasError: boolean) {
-  return `w-full rounded-md border bg-white px-3 py-2 text-sm outline-none focus:ring-2 ${
+  return `min-w-0 w-full rounded-md border bg-white px-3 py-2 text-sm outline-none focus:ring-2 ${
     hasError
       ? 'border-red-400 focus:ring-red-200'
       : 'border-slate-300 focus:ring-slate-200'

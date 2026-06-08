@@ -21,13 +21,16 @@ export function FormField({
   const helperId = `${htmlFor}-helper`;
 
   return (
-    <div className="grid self-start gap-2">
-      <label className="text-sm font-semibold text-slate-900" htmlFor={htmlFor}>
+    <div className="grid min-w-0 self-start gap-2">
+      <label
+        className="min-w-0 break-words text-sm font-semibold text-slate-900"
+        htmlFor={htmlFor}
+      >
         {label}
       </label>
       {children}
       {helperText ? (
-        <p id={helperId} className="text-sm text-slate-600">
+        <p id={helperId} className="min-w-0 break-words text-sm text-slate-600">
           {helperText}
         </p>
       ) : null}

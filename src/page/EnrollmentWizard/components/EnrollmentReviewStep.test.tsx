@@ -109,4 +109,34 @@ describe('EnrollmentReviewStep', () => {
     expect(screen.getByText('신청이 완료되었습니다.')).toBeInTheDocument();
     expect(screen.getByText('ENR-TEST-001')).toBeInTheDocument();
   });
+
+  test('확인 화면 섹션 header, 수정 링크, 제출/다시 시도 버튼은 모바일 세로 배치와 터치 영역을 유지한다', () => {
+    renderEnrollmentReviewStep({
+      submissionStatus: 'failed',
+      errorMessage:
+        '아주 긴 제출 실패 메시지가 모바일 폭에서도 줄바꿈되어야 합니다.',
+    });
+
+    expect(screen.getByTestId('summary-section-course')).toHaveClass(
+      'min-w-0',
+      'break-words',
+    );
+    expect(screen.getByTestId('summary-section-header-course')).toHaveClass(
+      'flex-col',
+      'sm:flex-row',
+    );
+    expect(screen.getByRole('button', { name: '강의 선택 수정' })).toHaveClass(
+      'min-h-11',
+      'px-3',
+    );
+    expect(screen.getByRole('button', { name: '다시 시도' })).toHaveClass(
+      'min-h-11',
+    );
+    expect(screen.getByRole('button', { name: '신청 제출' })).toHaveClass(
+      'min-h-11',
+    );
+    expect(screen.getByText(/아주 긴 제출 실패 메시지/)).toHaveClass(
+      'break-words',
+    );
+  });
 });

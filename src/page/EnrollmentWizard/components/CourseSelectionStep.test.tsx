@@ -135,4 +135,33 @@ describe('CourseSelectionStep', () => {
 
     expect(screen.getByText('잔여 2명')).toBeInTheDocument();
   });
+
+  test('모바일에서 강의 카드, 라디오 label, 선택 강의 요약이 줄바꿈과 터치 여백을 유지한다', () => {
+    renderCourseSelectionStep({
+      selectedCourseId: 'course-react-fundamentals',
+      courses: [
+        {
+          ...COURSES[0],
+          title:
+            '아주 긴 강의 제목으로 모바일 폭에서도 줄바꿈되어야 하는 React 실전 입문 과정',
+        },
+      ],
+    });
+
+    expect(
+      screen.getByTestId('course-card-course-react-fundamentals'),
+    ).toHaveClass('min-w-0', 'break-words', 'p-4');
+    expect(screen.getByTestId('course-title-course-react-fundamentals')).toHaveClass(
+      'min-w-0',
+      'break-words',
+    );
+    expect(screen.getByTestId('selected-course-summary')).toHaveClass(
+      'min-w-0',
+      'break-words',
+    );
+    expect(screen.getByRole('radio', { name: /개인 신청/ }).closest('label')).toHaveClass(
+      'min-h-11',
+      'px-4',
+    );
+  });
 });

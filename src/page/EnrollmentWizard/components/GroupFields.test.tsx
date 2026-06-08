@@ -113,4 +113,38 @@ describe('GroupFields', () => {
     expect(headCountInput).toHaveDisplayValue('10');
     expect(onGroupChange).toHaveBeenLastCalledWith('headCount', 10);
   });
+
+  test('참가자 입력 grid는 모바일 1열과 md 2열 class를 유지하고 긴 이메일을 줄바꿈한다', () => {
+    render(
+      <GroupFields
+        group={buildGroupForm({
+          participants: [
+            {
+              name: '김참가',
+              email:
+                'very.long.participant.email.address.for.mobile@example.com',
+            },
+            { name: '이참가', email: 'member2@example.com' },
+          ],
+        })}
+        errors={{
+          'group.participants.0.email':
+            '아주 긴 참가자 이메일 오류 메시지가 모바일에서도 줄바꿈되어야 합니다.',
+        }}
+        onGroupChange={vi.fn()}
+        onParticipantChange={vi.fn()}
+        onBlur={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId('group-participant-row-0')).toHaveClass(
+      'grid-cols-1',
+      'min-w-0',
+      'md:grid-cols-2',
+    );
+    expect(screen.getByLabelText('참가자 1 이메일')).toHaveClass('min-w-0');
+    expect(
+      screen.getByText(/아주 긴 참가자 이메일 오류 메시지/),
+    ).toHaveClass('break-words');
+  });
 });
