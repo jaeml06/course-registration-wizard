@@ -2,6 +2,9 @@ export type EnrollmentType = 'personal' | 'group';
 
 export type EnrollmentStep = 'course' | 'applicant' | 'review';
 
+// 제출 생명주기 상태. 제출 훅·임시저장 훅·확인 화면이 공유하므로 한 곳에서 정의한다.
+export type SubmissionStatus = 'idle' | 'submitting' | 'succeeded' | 'failed';
+
 export type FieldPath =
   | 'selectedCourseId'
   | 'type'
