@@ -34,7 +34,7 @@ export function GroupFields({
 }: GroupFieldsProps) {
   return (
     <div className="grid min-w-0 gap-5 rounded-md border border-slate-200 bg-slate-50 p-4">
-      <h3 className="min-w-0 break-words text-base font-bold text-slate-950">
+      <h3 className="min-w-0 wrap-break-word text-base font-bold text-slate-950">
         단체 신청 정보
       </h3>
       <TextField
@@ -69,7 +69,7 @@ export function GroupFields({
       </FormField>
 
       <div className="grid min-w-0 gap-4">
-        <h4 className="min-w-0 break-words text-sm font-bold text-slate-900">
+        <h4 className="min-w-0 wrap-break-word text-sm font-bold text-slate-900">
           참가자 명단
         </h4>
         {group.participants.map((participant, index) => {

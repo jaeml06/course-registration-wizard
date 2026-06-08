@@ -46,15 +46,15 @@ export function ApplicantInfoStep({
       <div className="min-w-0">
         <h2
           id="applicant-step-title"
-          className="break-words text-2xl font-bold tracking-normal"
+          className="wrap-break-word text-2xl font-bold tracking-normal"
         >
           2단계 수강생 정보 입력
         </h2>
-        <p className="mt-2 min-w-0 break-words text-sm text-slate-600">
+        <p className="mt-2 min-w-0 wrap-break-word text-sm text-slate-600">
           대표 신청자 정보를 입력합니다. 단체 신청은 참가자 명단까지 확인합니다.
         </p>
         {selectedCourse ? (
-          <p className="mt-2 min-w-0 break-words text-sm font-semibold text-slate-700">
+          <p className="mt-2 min-w-0 wrap-break-word text-sm font-semibold text-slate-700">
             선택 강의 잔여 정원: {getRemainingSeats(selectedCourse)}명
           </p>
         ) : null}

@@ -150,6 +150,6 @@ describe('ApplicantInfoStep', () => {
     expect(screen.getByLabelText('이메일')).toHaveClass('min-w-0');
     expect(
       screen.getByText(/아주 긴 이메일 오류 메시지/),
-    ).toHaveClass('break-words');
+    ).toHaveClass('wrap-break-word');
   });
 });

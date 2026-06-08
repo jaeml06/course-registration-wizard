@@ -288,7 +288,7 @@ export function EnrollmentWizardPage({
           <p className="text-sm font-semibold text-blue-700">
             Course Registration Wizard
           </p>
-          <h1 className="break-words text-3xl font-bold tracking-normal">
+          <h1 className="wrap-break-word text-3xl font-bold tracking-normal">
             수강 신청 Wizard
           </h1>
           <nav
@@ -298,7 +298,7 @@ export function EnrollmentWizardPage({
             {STEPS.map((step, index) => (
               <div
                 key={step}
-                className={`min-w-0 break-words rounded-md border p-3 text-sm ${
+                className={`min-w-0 wrap-break-word rounded-md border p-3 text-sm ${
                   index === currentIndex
                     ? 'border-slate-900 bg-white font-bold text-slate-950'
                     : 'border-slate-200 bg-white text-slate-600'
@@ -313,7 +313,7 @@ export function EnrollmentWizardPage({
 
         {recoveryNotice ? (
           <p
-            className={`min-w-0 break-words rounded-md border p-4 text-sm font-semibold ${
+            className={`min-w-0 wrap-break-word rounded-md border p-4 text-sm font-semibold ${
               recoveryNotice === INVALID_DRAFT_MESSAGE
                 ? 'border-amber-200 bg-amber-50 text-amber-900'
                 : 'border-blue-200 bg-blue-50 text-blue-900'
@@ -326,7 +326,7 @@ export function EnrollmentWizardPage({
 
         {courseReselectNotice ? (
           <p
-            className="min-w-0 break-words rounded-md border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900"
+            className="min-w-0 wrap-break-word rounded-md border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900"
             role="alert"
           >
             {courseReselectNotice}

@@ -145,6 +145,6 @@ describe('GroupFields', () => {
     expect(screen.getByLabelText('참가자 1 이메일')).toHaveClass('min-w-0');
     expect(
       screen.getByText(/아주 긴 참가자 이메일 오류 메시지/),
-    ).toHaveClass('break-words');
+    ).toHaveClass('wrap-break-word');
   });
 });

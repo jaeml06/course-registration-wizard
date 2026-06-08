@@ -63,11 +63,11 @@ export function CourseSelectionStep({
       <div className="min-w-0">
         <h2
           id="course-step-title"
-          className="break-words text-2xl font-bold tracking-normal"
+          className="wrap-break-word text-2xl font-bold tracking-normal"
         >
           1단계 강의 선택
         </h2>
-        <p className="mt-2 min-w-0 break-words text-sm text-slate-600">
+        <p className="mt-2 min-w-0 wrap-break-word text-sm text-slate-600">
           카테고리와 신청 유형을 선택한 뒤 신청 가능한 강의를 고릅니다.
         </p>
       </div>
@@ -96,7 +96,7 @@ export function CourseSelectionStep({
       </div>
 
       <fieldset className="grid min-w-0 gap-3">
-        <legend className="min-w-0 break-words text-sm font-semibold text-slate-900">
+        <legend className="min-w-0 wrap-break-word text-sm font-semibold text-slate-900">
           신청 유형
         </legend>
         <div className="flex min-w-0 flex-wrap gap-3">
@@ -124,14 +124,14 @@ export function CourseSelectionStep({
       <FieldError message={errors.selectedCourseId} />
 
       {listStatus === 'loading' ? (
-        <p className="min-w-0 break-words rounded-md border border-slate-200 bg-white p-4 text-sm text-slate-700">
+        <p className="min-w-0 wrap-break-word rounded-md border border-slate-200 bg-white p-4 text-sm text-slate-700">
           강의 목록을 불러오는 중입니다.
         </p>
       ) : null}
 
       {listStatus === 'failed' ? (
         <div className="min-w-0 rounded-md border border-red-200 bg-red-50 p-4">
-          <p className="min-w-0 break-words text-sm font-semibold text-red-800">
+          <p className="min-w-0 wrap-break-word text-sm font-semibold text-red-800">
             {errorMessage ?? '강의 목록을 불러오지 못했습니다.'}
           </p>
           <button
@@ -145,7 +145,7 @@ export function CourseSelectionStep({
       ) : null}
 
       {listStatus === 'ready' && courses.length === 0 ? (
-        <p className="min-w-0 break-words rounded-md border border-slate-200 bg-white p-4 text-sm text-slate-700">
+        <p className="min-w-0 wrap-break-word rounded-md border border-slate-200 bg-white p-4 text-sm text-slate-700">
           선택 가능한 강의가 없습니다.
         </p>
       ) : null}
@@ -160,14 +160,14 @@ export function CourseSelectionStep({
             return (
               <label
                 key={course.id}
-                className={`grid min-w-0 break-words gap-2 rounded-md border bg-white p-4 ${
+                className={`grid min-w-0 wrap-break-word gap-2 rounded-md border bg-white p-4 ${
                   isSelected ? 'border-slate-900' : 'border-slate-200'
                 } ${isFull ? 'opacity-60' : ''}`}
                 data-testid={`course-card-${course.id}`}
               >
                 <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
                   <span
-                    className="flex min-w-0 items-start gap-2 break-words text-base font-bold text-slate-950"
+                    className="flex min-w-0 items-start gap-2 wrap-break-word text-base font-bold text-slate-950"
                     data-testid={`course-title-${course.id}`}
                   >
                     {/* onChange는 키보드(방향키/스페이스) 선택을, onClick은 "이미 선택된 강의를
@@ -184,20 +184,20 @@ export function CourseSelectionStep({
                     />
                     {course.title}
                   </span>
-                  <span className="min-w-0 break-words text-sm font-semibold text-slate-700">
+                  <span className="min-w-0 wrap-break-word text-sm font-semibold text-slate-700">
                     {isFull ? '정원 마감' : `잔여 ${remainingSeats}명`}
                   </span>
                 </div>
-                <span className="min-w-0 break-words text-sm text-slate-600">
+                <span className="min-w-0 wrap-break-word text-sm text-slate-600">
                   {course.description}
                 </span>
-                <span className="min-w-0 break-words text-sm text-slate-600">
+                <span className="min-w-0 wrap-break-word text-sm text-slate-600">
                   {COURSE_CATEGORY_LABELS[course.category]} ·{' '}
                   {course.instructor} · {formatDateRange(course)} ·{' '}
                   {formatPrice(course.price)}원
                 </span>
                 {isLowCapacityCourse(course) ? (
-                  <span className="min-w-0 break-words text-sm font-semibold text-amber-700">
+                  <span className="min-w-0 wrap-break-word text-sm font-semibold text-amber-700">
                     잔여 정원이 적습니다.
                   </span>
                 ) : null}
@@ -209,16 +209,16 @@ export function CourseSelectionStep({
 
       {selectedCourse ? (
         <aside
-          className="min-w-0 break-words rounded-md border border-slate-200 bg-slate-50 p-4"
+          className="min-w-0 wrap-break-word rounded-md border border-slate-200 bg-slate-50 p-4"
           data-testid="selected-course-summary"
         >
-          <h3 className="min-w-0 break-words text-sm font-bold text-slate-900">
+          <h3 className="min-w-0 wrap-break-word text-sm font-bold text-slate-900">
             선택한 강의
           </h3>
-          <p className="mt-2 min-w-0 break-words text-base font-semibold text-slate-950">
+          <p className="mt-2 min-w-0 wrap-break-word text-base font-semibold text-slate-950">
             {selectedCourse.title}
           </p>
-          <p className="mt-1 min-w-0 break-words text-sm text-slate-600">
+          <p className="mt-1 min-w-0 wrap-break-word text-sm text-slate-600">
             {formatDateRange(selectedCourse)} ·{' '}
             {formatPrice(selectedCourse.price)}원
           </p>
@@ -229,7 +229,7 @@ export function CourseSelectionStep({
 }
 
 function categoryButtonClass(isActive: boolean) {
-  return `min-h-11 min-w-0 break-words rounded-md border px-4 py-2 text-sm font-semibold ${
+  return `min-h-11 min-w-0 wrap-break-word rounded-md border px-4 py-2 text-sm font-semibold ${
     isActive
       ? 'border-slate-900 bg-slate-900 text-white'
       : 'border-slate-300 bg-white text-slate-700'

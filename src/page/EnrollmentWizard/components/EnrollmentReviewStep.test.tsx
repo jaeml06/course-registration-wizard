@@ -119,7 +119,7 @@ describe('EnrollmentReviewStep', () => {
 
     expect(screen.getByTestId('summary-section-course')).toHaveClass(
       'min-w-0',
-      'break-words',
+      'wrap-break-word',
     );
     expect(screen.getByTestId('summary-section-header-course')).toHaveClass(
       'flex-col',
@@ -136,7 +136,7 @@ describe('EnrollmentReviewStep', () => {
       'min-h-11',
     );
     expect(screen.getByText(/아주 긴 제출 실패 메시지/)).toHaveClass(
-      'break-words',
+      'wrap-break-word',
     );
   });
 });

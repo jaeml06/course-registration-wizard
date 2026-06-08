@@ -25,14 +25,14 @@ export function FormField({
   return (
     <div className="grid min-w-0 self-start gap-2">
       <label
-        className="min-w-0 break-words text-sm font-semibold text-slate-900"
+        className="min-w-0 wrap-break-word text-sm font-semibold text-slate-900"
         htmlFor={htmlFor}
       >
         {label}
       </label>
       {children}
       {helperText ? (
-        <p id={helperId} className="min-w-0 break-words text-sm text-slate-600">
+        <p id={helperId} className="min-w-0 wrap-break-word text-sm text-slate-600">
           {helperText}
         </p>
       ) : null}

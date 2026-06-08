@@ -150,14 +150,14 @@ describe('CourseSelectionStep', () => {
 
     expect(
       screen.getByTestId('course-card-course-react-fundamentals'),
-    ).toHaveClass('min-w-0', 'break-words', 'p-4');
+    ).toHaveClass('min-w-0', 'wrap-break-word', 'p-4');
     expect(screen.getByTestId('course-title-course-react-fundamentals')).toHaveClass(
       'min-w-0',
-      'break-words',
+      'wrap-break-word',
     );
     expect(screen.getByTestId('selected-course-summary')).toHaveClass(
       'min-w-0',
-      'break-words',
+      'wrap-break-word',
     );
     expect(screen.getByRole('radio', { name: /개인 신청/ }).closest('label')).toHaveClass(
       'min-h-11',
