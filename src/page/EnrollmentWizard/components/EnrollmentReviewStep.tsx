@@ -29,6 +29,8 @@ function formatDateTime(value: string) {
   }).format(new Date(value));
 }
 
+// 3단계 화면: 제출 성공 시 완료 화면(신청번호/상태/시각)을, 그 외에는 입력 요약 + 약관 동의 +
+// 제출/실패/재시도 UI를 그린다. 요약 섹션(SummarySections)은 두 경우가 공유한다.
 export function EnrollmentReviewStep({
   formState,
   selectedCourse,

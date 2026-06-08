@@ -5,6 +5,9 @@ import type {
   EnrollmentStep,
 } from '../type/enrollmentForm';
 
+// 임시저장(draft) 전담 모듈. sessionStorage에 단일 key로 JSON 하나만 읽고/쓰고/지운다.
+// 저장 형식이 바뀔 때를 대비해 version을 함께 저장하고, 읽을 때 Zod로 구조를 검증한다.
+
 export const DRAFT_STORAGE_KEY = 'course-registration-wizard:draft:v1';
 export const DRAFT_SCHEMA_VERSION = 1;
 
@@ -83,6 +86,8 @@ const enrollmentFormStateSchema = z.union([
   groupFormStateSchema,
 ]);
 
+// 저장된 draft 전체 구조. .strict()라서 정의되지 않은 키가 섞이면 검증을 통과하지 못한다
+// (손상되거나 옛 형식의 데이터를 안전하게 걸러 내기 위함).
 const storedEnrollmentDraftSchema = z
   .object({
     version: z.literal(DRAFT_SCHEMA_VERSION),
@@ -105,6 +110,8 @@ export function createStoredEnrollmentDraft(
   };
 }
 
+// 저장된 문자열을 파싱·검증해 복구 결과로 변환한다.
+// JSON 파싱 실패든 스키마 불일치든 모두 'invalid'로 모아, 호출부가 한 갈래로 처리하게 한다.
 export function parseStoredEnrollmentDraft(raw: string): DraftRecoveryResult {
   try {
     const parsed = JSON.parse(raw) as unknown;
@@ -124,6 +131,10 @@ export function parseStoredEnrollmentDraft(raw: string): DraftRecoveryResult {
   }
 }
 
+// 저장소에서 draft를 읽는다.
+//  - 비어 있으면 'empty', 손상됐으면 'invalid'(이때 쓰레기 데이터를 즉시 삭제),
+//  - storage 접근 자체가 막히면(프라이버시 모드 등) 'unavailable'.
+// 어느 경우든 예외를 밖으로 던지지 않아 신청 흐름을 막지 않는다.
 export function readEnrollmentDraft(storage: Storage): DraftRecoveryResult {
   try {
     const raw = storage.getItem(DRAFT_STORAGE_KEY);
@@ -179,6 +190,8 @@ export function clearEnrollmentDraft(storage: Storage): DraftPersistenceState {
   }
 }
 
+// 엄격한 ISO 8601 문자열인지 검사. 다시 toISOString()으로 직렬화했을 때 원본과 같아야
+// 통과시켜, "2026-13-99" 같은 느슨하게 파싱되는 잘못된 날짜를 걸러 낸다.
 function isIsoDateString(value: string): boolean {
   const date = new Date(value);
 

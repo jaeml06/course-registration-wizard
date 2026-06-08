@@ -6,6 +6,8 @@ interface StepNavigationProps {
   onNext: () => void;
 }
 
+// 단계 하단의 "이전/다음" 버튼 묶음. 첫 단계에선 이전이 비활성화되고,
+// 마지막 단계에선 라벨이 "신청 제출"로 바뀐다(현재는 review 단계에서 별도 제출 버튼을 써서 미사용).
 export function StepNavigation({
   canGoBack,
   isLastStep,

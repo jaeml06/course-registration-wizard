@@ -38,6 +38,8 @@ function formatDateRange(course: Course) {
   return `${course.startDate} ~ ${course.endDate}`;
 }
 
+// 1단계 화면: 카테고리 필터, 신청 유형 선택, 강의 목록(로딩/실패/빈/정상), 선택 강의 요약.
+// 상태는 갖지 않고 props로 받은 값/콜백만 그린다(상태는 Page의 훅들이 보유).
 export function CourseSelectionStep({
   courses,
   categories,
