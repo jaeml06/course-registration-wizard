@@ -13,12 +13,15 @@ import {
   getRemainingSeats,
   isCourseFull,
 } from './courseCapacity';
+import { ENROLLMENT_MESSAGES } from './enrollmentMessages';
+
+const KOREAN_PHONE_PATTERN = /^01[016789]-?\d{3,4}-?\d{4}$/;
 
 const phoneSchema = z
   .string()
   .trim()
   .regex(
-    /^01[016789]-?\d{3,4}-?\d{4}$/,
+    KOREAN_PHONE_PATTERN,
     '전화번호는 010-1234-5678 형식으로 입력해 주세요.',
   );
 
@@ -43,7 +46,7 @@ const contactPersonSchema = z
   .string()
   .trim()
   .regex(
-    /^01[016789]-?\d{3,4}-?\d{4}$/,
+    KOREAN_PHONE_PATTERN,
     '담당자 연락처는 010-1234-5678 형식으로 입력해 주세요.',
   );
 
@@ -153,7 +156,7 @@ export function validateCourseStep(
   const errors: ValidationErrors = {};
 
   if (!state.selectedCourseId) {
-    setError(errors, 'selectedCourseId', '수강할 강의를 선택해 주세요.');
+    setError(errors, 'selectedCourseId', ENROLLMENT_MESSAGES.courseRequired);
     return errors;
   }
 
@@ -301,7 +304,7 @@ export function validateReviewStep(
   }
 
   return {
-    agreedToTerms: '이용약관에 동의해야 제출할 수 있습니다.',
+    agreedToTerms: ENROLLMENT_MESSAGES.termsRequired,
   };
 }
 

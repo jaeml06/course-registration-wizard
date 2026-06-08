@@ -9,6 +9,7 @@ import type {
   ValidationErrors,
 } from '../../../type/enrollmentForm';
 import { postEnrollment } from '../../../apis/enrollments';
+import { ENROLLMENT_MESSAGES } from '../../../util/enrollmentMessages';
 import { mapEnrollmentSubmissionError } from '../../../util/enrollmentSubmissionErrors';
 
 type SubmissionResult =
@@ -45,16 +46,16 @@ export function useEnrollmentSubmissionState(
   ): Promise<SubmissionResult> {
     if (!payload) {
       const fieldErrors = {
-        agreedToTerms: '이용약관에 동의해야 제출할 수 있습니다.',
+        agreedToTerms: ENROLLMENT_MESSAGES.termsRequired,
       };
       setStatus('failed');
-      setErrorMessage('이용약관에 동의해야 제출할 수 있습니다.');
+      setErrorMessage(ENROLLMENT_MESSAGES.termsRequired);
       setFieldErrors(fieldErrors);
 
       return {
         ok: false,
         response: null,
-        message: '이용약관에 동의해야 제출할 수 있습니다.',
+        message: ENROLLMENT_MESSAGES.termsRequired,
         fieldErrors,
       };
     }
