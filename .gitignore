@@ -22,6 +22,7 @@ pnpm-debug.log*
 .turbo/
 .eslintcache
 .cache/
+.playwright-cli/
 *.tsbuildinfo
 
 # Test artifacts
