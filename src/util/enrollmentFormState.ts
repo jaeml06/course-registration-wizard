@@ -3,7 +3,6 @@ import type {
   EnrollmentFormState,
   EnrollmentType,
   GroupEnrollmentForm,
-  GroupEnrollmentFormState,
 } from '../type/enrollmentForm';
 
 type ApplicantField = keyof ApplicantForm;
@@ -13,13 +12,8 @@ interface SwitchEnrollmentTypeOptions {
   confirmedReset?: boolean;
 }
 
-export interface MeaningfulEnrollmentData {
-  hasSelectedCourse: boolean;
-  hasApplicantInput: boolean;
-  hasGroupInput: boolean;
-  hasTermsAgreement: boolean;
-  isMeaningful: boolean;
-}
+// 이 파일은 폼 상태를 다루는 "순수 함수" 모음이다.
+// 모두 (현재 상태) → (새 상태)를 반환하며 React를 전혀 모른다 → 화면 없이 단위 테스트 가능.
 
 const EMPTY_PARTICIPANT = { name: '', email: '' };
 const MAX_GROUP_HEAD_COUNT = 10;
@@ -52,6 +46,8 @@ export function createInitialEnrollmentFormState(): EnrollmentFormState {
   };
 }
 
+// 단체 폼에 "버리면 아까운" 실제 입력이 있는지 판단한다.
+// 단체→개인 전환 시 확인창을 띄울지 결정하는 데 쓰인다(headCount는 항상 기본값이 있어 제외).
 export function hasMeaningfulGroupData(
   group: GroupEnrollmentForm | null,
 ): boolean {
@@ -70,36 +66,30 @@ export function hasMeaningfulGroupData(
   );
 }
 
-export function getMeaningfulEnrollmentData(
-  state: EnrollmentFormState,
-): MeaningfulEnrollmentData {
-  const hasSelectedCourse = state.selectedCourseId.trim().length > 0;
-  const hasApplicantInput = Object.values(state.applicant).some(
-    (value) => value.trim().length > 0,
-  );
-  const hasGroupInput =
-    state.type === 'group' && hasMeaningfulGroupData(state.group);
-  const hasTermsAgreement = state.agreedToTerms;
-
-  return {
-    hasSelectedCourse,
-    hasApplicantInput,
-    hasGroupInput,
-    hasTermsAgreement,
-    isMeaningful:
-      hasSelectedCourse ||
-      hasApplicantInput ||
-      hasGroupInput ||
-      hasTermsAgreement,
-  };
-}
-
+// 신청서 전체에 의미 있는 입력이 하나라도 있는지 판단한다.
+// 임시저장 여부(빈 폼이면 저장 안 함)와 이탈 방지(빈 폼이면 경고 안 함)의 공통 기준.
 export function hasMeaningfulEnrollmentData(
   state: EnrollmentFormState,
 ): boolean {
-  return getMeaningfulEnrollmentData(state).isMeaningful;
+  const hasApplicantInput = Object.values(state.applicant).some(
+    (value) => value.trim().length > 0,
+  );
+
+  return (
+    state.selectedCourseId.trim().length > 0 ||
+    hasApplicantInput ||
+    (state.type === 'group' && hasMeaningfulGroupData(state.group)) ||
+    state.agreedToTerms
+  );
 }
 
+/**
+ * 개인/단체 유형 전환의 핵심 규칙(요구사항의 조건부 필드 정책을 그대로 구현).
+ *  - 같은 유형이면 그대로 반환.
+ *  - 개인→단체: 단체 기본 폼을 새로 만든다.
+ *  - 단체→개인: 입력된 단체 데이터가 있는데 confirmedReset이 false면 변경을 거부(원상 유지).
+ *               동의했거나 버릴 데이터가 없으면 group을 null로 비우고 개인으로 전환.
+ */
 export function switchEnrollmentType(
   state: EnrollmentFormState,
   nextType: EnrollmentType,
@@ -117,6 +107,7 @@ export function switchEnrollmentType(
     };
   }
 
+  // 단체→개인인데 버릴 데이터가 있고 아직 동의를 못 받았다면 전환하지 않는다.
   if (state.type === 'group' && hasMeaningfulGroupData(state.group)) {
     if (!options.confirmedReset) {
       return state;
@@ -144,6 +135,7 @@ export function updateApplicantField(
   };
 }
 
+// 단체 필드 갱신. 개인 상태에서 호출되면 무시한다(타입 가드).
 export function updateGroupField(
   state: EnrollmentFormState,
   field: GroupField,
@@ -153,6 +145,7 @@ export function updateGroupField(
     return state;
   }
 
+  // 인원수(headCount)는 단순 대입이 아니라 참가자 명단 길이와 동기화해야 한다.
   if (field === 'headCount') {
     return {
       ...state,
@@ -212,6 +205,12 @@ export function updateTermsAgreement(
   };
 }
 
+/**
+ * 인원수 변경에 맞춰 참가자 명단 길이를 맞춘다(요구사항: 명단 개수 == 인원수).
+ *  - 줄이면 뒤쪽 참가자가 잘려 나가고, 늘리면 빈 참가자가 채워진다.
+ *  - 기존 입력은 인덱스 기준으로 보존한다(앞쪽 참가자 데이터 유지).
+ *  - 상한(10)만 여기서 강제하고, 하한 등 검증 메시지는 enrollmentValidation이 담당한다.
+ */
 export function syncParticipantsToHeadCount(
   group: GroupEnrollmentForm,
   headCount: number,
@@ -232,10 +231,4 @@ export function syncParticipantsToHeadCount(
     headCount: normalizedHeadCount,
     participants,
   };
-}
-
-export function isGroupEnrollmentFormState(
-  state: EnrollmentFormState,
-): state is GroupEnrollmentFormState {
-  return state.type === 'group';
 }

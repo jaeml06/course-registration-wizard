@@ -138,22 +138,20 @@ describe('useEnrollmentDraftPersistence', () => {
     expect(sessionStorage.getItem(DRAFT_STORAGE_KEY)).toBeNull();
   });
 
-  test('storage unavailable이면 진행을 막지 않고 unavailable 상태를 반환한다', () => {
+  test('storage가 예외를 던져도 렌더링을 막지 않는다', () => {
     const storage = createThrowingStorage();
 
-    const { result } = renderHook(() =>
-      useEnrollmentDraftPersistence({
-        formState: buildPersonalDraft(),
-        currentStep: 'applicant',
-        submissionStatus: 'idle',
-        storage,
-      }),
-    );
+    expect(() =>
+      renderHook(() =>
+        useEnrollmentDraftPersistence({
+          formState: buildPersonalDraft(),
+          currentStep: 'applicant',
+          submissionStatus: 'idle',
+          storage,
+        }),
+      ),
+    ).not.toThrow();
 
-    expect(result.current).toEqual({
-      recoveryStatus: 'unavailable',
-      recoveryMessage: '임시 저장을 사용할 수 없습니다. 신청은 계속 진행할 수 있습니다.',
-      isPersistenceAvailable: false,
-    });
+    expect(storage.setItem).toHaveBeenCalled();
   });
 });

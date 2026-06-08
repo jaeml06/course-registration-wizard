@@ -8,7 +8,6 @@ import {
 import {
   createInitialEnrollmentFormState,
   createInitialGroupForm,
-  getMeaningfulEnrollmentData,
   hasMeaningfulGroupData,
   hasMeaningfulEnrollmentData,
   switchEnrollmentType,
@@ -157,13 +156,6 @@ describe('enrollmentFormState', () => {
   test('빈 개인 신청은 의미 있는 입력으로 보지 않는다', () => {
     const state = buildEmptyPersonalDraft();
 
-    expect(getMeaningfulEnrollmentData(state)).toEqual({
-      hasSelectedCourse: false,
-      hasApplicantInput: false,
-      hasGroupInput: false,
-      hasTermsAgreement: false,
-      isMeaningful: false,
-    });
     expect(hasMeaningfulEnrollmentData(state)).toBe(false);
   });
 
@@ -204,14 +196,14 @@ describe('enrollmentFormState', () => {
 
     expect(hasMeaningfulEnrollmentData(buildMeaningfulGroupDraft())).toBe(true);
     expect(
-      getMeaningfulEnrollmentData(
+      hasMeaningfulEnrollmentData(
         buildGroupDraft({
           selectedCourseId: '',
           applicant: { name: '', email: '', phone: '', motivation: '' },
           agreedToTerms: false,
           group: createInitialGroupForm(),
         }),
-      ).hasGroupInput,
+      ),
     ).toBe(false);
   });
 });

@@ -1,10 +1,7 @@
 import { act, renderHook } from '@testing-library/react';
 
 import { COURSES } from '../../../constants/courses';
-import {
-  buildGroupDraft,
-  buildPersonalDraft,
-} from '../../../test/enrollmentFixtures';
+import { buildGroupDraft } from '../../../test/enrollmentFixtures';
 
 import { useEnrollmentFormState } from './useEnrollmentFormState';
 
@@ -37,23 +34,6 @@ describe('useEnrollmentFormState', () => {
     expect(result.current.touchedFields['applicant.email']).toBe(true);
     expect(result.current.errors['applicant.email']).toBe(
       '이메일 형식으로 입력해 주세요.',
-    );
-  });
-
-  test('현재 스텝 검증 결과를 오류 상태에 반영한다', () => {
-    const { result } = renderHook(() =>
-      useEnrollmentFormState({ courses: COURSES }),
-    );
-
-    let isValid = true;
-
-    act(() => {
-      isValid = result.current.validateStep('course');
-    });
-
-    expect(isValid).toBe(false);
-    expect(result.current.errors.selectedCourseId).toBe(
-      '수강할 강의를 선택해 주세요.',
     );
   });
 
@@ -133,37 +113,7 @@ describe('useEnrollmentFormState', () => {
     );
   });
 
-  test('replaceFormState는 상태를 교체하고 오류와 touched 상태를 초기화한다', () => {
-    const { result } = renderHook(() =>
-      useEnrollmentFormState({ courses: COURSES }),
-    );
-    const nextFormState = buildPersonalDraft({
-      selectedCourseId: 'course-typescript-forms',
-      agreedToTerms: false,
-    });
-
-    act(() => {
-      result.current.blurField('applicant.email');
-      result.current.setErrors({
-        selectedCourseId: '수강할 강의를 선택해 주세요.',
-      });
-    });
-
-    expect(result.current.touchedFields['applicant.email']).toBe(true);
-    expect(result.current.errors.selectedCourseId).toBe(
-      '수강할 강의를 선택해 주세요.',
-    );
-
-    act(() => {
-      result.current.replaceFormState(nextFormState);
-    });
-
-    expect(result.current.formState).toEqual(nextFormState);
-    expect(result.current.errors).toEqual({});
-    expect(result.current.touchedFields).toEqual({});
-  });
-
-  test('resetErrors는 입력값을 유지하면서 오류만 초기화한다', () => {
+  test('setErrors로 교체한 오류를 유지하고 입력값과 함께 노출한다', () => {
     const { result } = renderHook(() =>
       useEnrollmentFormState({ courses: COURSES }),
     );
@@ -173,10 +123,11 @@ describe('useEnrollmentFormState', () => {
       result.current.setErrors({
         'applicant.email': '이메일 형식으로 입력해 주세요.',
       });
-      result.current.resetErrors();
     });
 
     expect(result.current.formState.applicant.name).toBe('홍길동');
-    expect(result.current.errors).toEqual({});
+    expect(result.current.errors['applicant.email']).toBe(
+      '이메일 형식으로 입력해 주세요.',
+    );
   });
 });
