@@ -13,6 +13,14 @@ interface SwitchEnrollmentTypeOptions {
   confirmedReset?: boolean;
 }
 
+export interface MeaningfulEnrollmentData {
+  hasSelectedCourse: boolean;
+  hasApplicantInput: boolean;
+  hasGroupInput: boolean;
+  hasTermsAgreement: boolean;
+  isMeaningful: boolean;
+}
+
 const EMPTY_PARTICIPANT = { name: '', email: '' };
 const MAX_GROUP_HEAD_COUNT = 10;
 
@@ -60,6 +68,36 @@ export function hasMeaningfulGroupData(
         participant.email.trim().length > 0,
     )
   );
+}
+
+export function getMeaningfulEnrollmentData(
+  state: EnrollmentFormState,
+): MeaningfulEnrollmentData {
+  const hasSelectedCourse = state.selectedCourseId.trim().length > 0;
+  const hasApplicantInput = Object.values(state.applicant).some(
+    (value) => value.trim().length > 0,
+  );
+  const hasGroupInput =
+    state.type === 'group' && hasMeaningfulGroupData(state.group);
+  const hasTermsAgreement = state.agreedToTerms;
+
+  return {
+    hasSelectedCourse,
+    hasApplicantInput,
+    hasGroupInput,
+    hasTermsAgreement,
+    isMeaningful:
+      hasSelectedCourse ||
+      hasApplicantInput ||
+      hasGroupInput ||
+      hasTermsAgreement,
+  };
+}
+
+export function hasMeaningfulEnrollmentData(
+  state: EnrollmentFormState,
+): boolean {
+  return getMeaningfulEnrollmentData(state).isMeaningful;
 }
 
 export function switchEnrollmentType(

@@ -1,7 +1,16 @@
 import {
+  buildEmptyPersonalDraft,
+  buildMeaningfulGroupDraft,
+  buildPersonalDraft,
+  buildGroupDraft,
+} from '../test/enrollmentFixtures';
+
+import {
   createInitialEnrollmentFormState,
   createInitialGroupForm,
+  getMeaningfulEnrollmentData,
   hasMeaningfulGroupData,
+  hasMeaningfulEnrollmentData,
   switchEnrollmentType,
   syncParticipantsToHeadCount,
   updateApplicantField,
@@ -143,5 +152,66 @@ describe('enrollmentFormState', () => {
         name: '홍길동',
       },
     });
+  });
+
+  test('빈 개인 신청은 의미 있는 입력으로 보지 않는다', () => {
+    const state = buildEmptyPersonalDraft();
+
+    expect(getMeaningfulEnrollmentData(state)).toEqual({
+      hasSelectedCourse: false,
+      hasApplicantInput: false,
+      hasGroupInput: false,
+      hasTermsAgreement: false,
+      isMeaningful: false,
+    });
+    expect(hasMeaningfulEnrollmentData(state)).toBe(false);
+  });
+
+  test('강의 선택, 신청자 입력, 약관 동의는 의미 있는 입력으로 판단한다', () => {
+    expect(
+      hasMeaningfulEnrollmentData(
+        buildEmptyPersonalDraft({ selectedCourseId: 'course-react-fundamentals' }),
+      ),
+    ).toBe(true);
+    expect(
+      hasMeaningfulEnrollmentData(
+        buildEmptyPersonalDraft({
+          applicant: {
+            name: '',
+            email: 'student@example.com',
+            phone: '',
+            motivation: '',
+          },
+        }),
+      ),
+    ).toBe(true);
+    expect(
+      hasMeaningfulEnrollmentData(buildEmptyPersonalDraft({ agreedToTerms: true })),
+    ).toBe(true);
+  });
+
+  test('개인 draft는 group 값을 의미 있는 입력으로 보지 않고 단체 draft의 단체 필드는 의미 있게 본다', () => {
+    expect(
+      hasMeaningfulEnrollmentData(
+        buildPersonalDraft({
+          selectedCourseId: '',
+          applicant: { name: '', email: '', phone: '', motivation: '' },
+          agreedToTerms: false,
+          group: createInitialGroupForm(),
+        }),
+      ),
+    ).toBe(false);
+
+    expect(hasMeaningfulEnrollmentData(buildMeaningfulGroupDraft())).toBe(true);
+    expect(
+      getMeaningfulEnrollmentData(
+        buildGroupDraft({
+          selectedCourseId: '',
+          applicant: { name: '', email: '', phone: '', motivation: '' },
+          agreedToTerms: false,
+          group: createInitialGroupForm(),
+        }),
+      ).hasGroupInput,
+    ).toBe(false);
   });
 });
