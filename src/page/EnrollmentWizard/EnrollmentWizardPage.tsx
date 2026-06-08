@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import {
   COURSE_CATEGORIES,
@@ -18,7 +18,6 @@ import {
   type DraftRecoveryResult,
 } from '../../util/enrollmentDraftStorage';
 import { hasMeaningfulEnrollmentData } from '../../util/enrollmentFormState';
-import { isCourseFull } from '../../util/courseCapacity';
 import { fieldPathToElementId } from '../../util/fieldElementId';
 import { firstErrorFieldForStep } from '../../util/firstErrorField';
 
@@ -30,6 +29,7 @@ import { useEnrollmentDraftPersistence } from './hooks/useEnrollmentDraftPersist
 import { useEnrollmentFormState } from './hooks/useEnrollmentFormState';
 import { useEnrollmentSubmissionState } from './hooks/useEnrollmentSubmissionState';
 import { useLeavePrevention } from './hooks/useLeavePrevention';
+import { useRecoveredCourseGuard } from './hooks/useRecoveredCourseGuard';
 
 type CourseCategoryFilter = CourseCategory | 'all';
 
@@ -65,7 +65,6 @@ export function EnrollmentWizardPage({
   const [courseReselectNotice, setCourseReselectNotice] = useState<
     string | null
   >(null);
-  const recoveredCourseCheckedRef = useRef(false);
   const [selectedCategory, setSelectedCategory] =
     useState<CourseCategoryFilter>('all');
   const coursesQuery = useCoursesQuery(selectedCategory);
@@ -111,40 +110,25 @@ export function EnrollmentWizardPage({
     firstErrorFieldRef.current = null;
   }, [form.errors, currentStep]);
 
-  useEffect(() => {
-    if (listStatus !== 'ready' || !form.formState.selectedCourseId) {
-      return;
-    }
+  const selectedCourseId = form.formState.selectedCourseId;
+  const { updateSelectedCourse, setErrors: setFormErrors } = form;
 
-    const selectedCourse = courses.find(
-      (course) => course.id === form.formState.selectedCourseId,
-    );
-    const isRecoveredCourseCheck =
-      draftRecovery.status === 'restored' && !recoveredCourseCheckedRef.current;
+  const goToCourseStep = useCallback(() => goTo('course'), [goTo]);
+  const clearSelectedCourse = useCallback(
+    () => updateSelectedCourse(''),
+    [updateSelectedCourse],
+  );
 
-    if (isRecoveredCourseCheck) {
-      recoveredCourseCheckedRef.current = true;
-    }
-
-    if (selectedCourse && !isCourseFull(selectedCourse)) {
-      return;
-    }
-
-    if (isRecoveredCourseCheck) {
-      goTo('course');
-      setCourseReselectNotice(
-        '저장된 강의를 현재 신청할 수 없어 다시 선택해 주세요.',
-      );
-    } else {
-      setCourseReselectNotice(null);
-    }
-
-    form.updateSelectedCourse('');
-    form.setErrors({
-      ...form.errors,
-      selectedCourseId: '수강할 강의를 선택해 주세요.',
-    });
-  }, [courses, draftRecovery.status, form, goTo, listStatus]);
+  useRecoveredCourseGuard({
+    courses,
+    listStatus,
+    draftRecoveryStatus: draftRecovery.status,
+    selectedCourseId,
+    goToCourseStep,
+    clearSelectedCourse,
+    setFormErrors,
+    setReselectNotice: setCourseReselectNotice,
+  });
 
   function handleNext() {
     const nextErrors = form.getStepErrors(currentStep);
