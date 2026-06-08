@@ -8,6 +8,9 @@ beforeAll(() => {
 
 afterEach(() => {
   server.resetHandlers();
+  sessionStorage.clear();
+  vi.restoreAllMocks();
+  window.history.replaceState(null, '', '/');
 });
 
 afterAll(() => {
