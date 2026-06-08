@@ -3,11 +3,11 @@ import { renderHook, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 
 import { COURSE_CATEGORIES, COURSES } from '../../constants/courses';
-import { getCourses } from '../../apis/apis/courses';
+import { getCourses } from '../../apis/courses';
 
 import { useCoursesQuery } from './useCoursesQuery';
 
-vi.mock('../../apis/apis/courses', () => ({
+vi.mock('../../apis/courses', () => ({
   getCourses: vi.fn(),
 }));
 

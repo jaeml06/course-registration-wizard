@@ -1,11 +1,11 @@
 import { http, HttpResponse } from 'msw';
 
-import { server } from '../../mocks/server';
+import { server } from '../mocks/server';
 import {
   buildGroupDraft,
   buildPersonalDraft,
-} from '../../test/enrollmentFixtures';
-import { createEnrollmentPayload } from '../../util/enrollmentPayload';
+} from '../test/enrollmentFixtures';
+import { createEnrollmentPayload } from '../util/enrollmentPayload';
 
 import { postEnrollment } from './enrollments';
 

@@ -76,9 +76,8 @@ npm run build
 ```text
 src/
   apis/
-    apis/
-      courses.ts               # GET /api/courses 호출 함수
-      enrollments.ts           # POST /api/enrollments 호출 함수
+    courses.ts                 # GET /api/courses 호출 함수
+    enrollments.ts             # POST /api/enrollments 호출 함수
     primitives.ts              # fetch 공통 helper와 실패 응답 throw 정책
     requests/, responses/      # API 요청/응답 타입 re-export
   constants/

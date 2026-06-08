@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { getCourses } from '../../apis/apis/courses';
+import { getCourses } from '../../apis/courses';
 import type { CourseCategory } from '../../type/course';
 
 export type CourseCategoryFilter = CourseCategory | 'all';

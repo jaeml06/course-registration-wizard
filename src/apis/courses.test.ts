@@ -1,8 +1,8 @@
 import { http, HttpResponse } from 'msw';
 
-import { COURSE_CATEGORIES, COURSES } from '../../constants/courses';
-import type { ErrorResponse } from '../../type/enrollment';
-import { server } from '../../mocks/server';
+import { COURSE_CATEGORIES, COURSES } from '../constants/courses';
+import type { ErrorResponse } from '../type/enrollment';
+import { server } from '../mocks/server';
 
 import { getCourses } from './courses';
 

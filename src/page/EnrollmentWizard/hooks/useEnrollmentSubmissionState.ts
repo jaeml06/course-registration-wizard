@@ -5,7 +5,7 @@ import type {
   EnrollmentResponse,
 } from '../../../type/enrollment';
 import type { ValidationErrors } from '../../../type/enrollmentForm';
-import { postEnrollment } from '../../../apis/apis/enrollments';
+import { postEnrollment } from '../../../apis/enrollments';
 import { mapEnrollmentSubmissionError } from '../../../util/enrollmentSubmissionErrors';
 
 type SubmissionStatus = 'idle' | 'submitting' | 'succeeded' | 'failed';
