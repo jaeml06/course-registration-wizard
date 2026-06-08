@@ -1,7 +1,17 @@
 import { useMemo, useState } from 'react';
 
-export function useFunnel<const Step extends string>(steps: readonly Step[]) {
-  const [currentStep, setCurrentStep] = useState<Step>(steps[0]);
+interface UseFunnelOptions {
+  initialStep?: string;
+}
+
+export function useFunnel<const Step extends string>(
+  steps: readonly Step[],
+  options: UseFunnelOptions = {},
+) {
+  const initialStep = steps.includes(options.initialStep as Step)
+    ? (options.initialStep as Step)
+    : steps[0];
+  const [currentStep, setCurrentStep] = useState<Step>(initialStep);
   const currentIndex = steps.indexOf(currentStep);
 
   const controls = useMemo(() => {

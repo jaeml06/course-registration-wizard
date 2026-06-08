@@ -50,4 +50,26 @@ describe('useFunnel', () => {
     expect(result.current.canGoBack).toBe(true);
     expect(result.current.canGoNext).toBe(false);
   });
+
+  test('저장된 initialStep에서 시작한다', () => {
+    const { result } = renderHook(() =>
+      useFunnel(['course', 'applicant', 'review'] as const, {
+        initialStep: 'applicant',
+      }),
+    );
+
+    expect(result.current.currentStep).toBe('applicant');
+    expect(result.current.currentIndex).toBe(1);
+    expect(result.current.canGoBack).toBe(true);
+  });
+
+  test('알 수 없는 initialStep은 첫 번째 스텝으로 보정한다', () => {
+    const { result } = renderHook(() =>
+      useFunnel(['course', 'applicant', 'review'] as const, {
+        initialStep: 'unknown',
+      }),
+    );
+
+    expect(result.current.currentStep).toBe('course');
+  });
 });
