@@ -1,6 +1,10 @@
 import { act, renderHook } from '@testing-library/react';
 
 import { COURSES } from '../../../constants/courses';
+import {
+  buildGroupDraft,
+  buildPersonalDraft,
+} from '../../../test/enrollmentFixtures';
 
 import { useEnrollmentFormState } from './useEnrollmentFormState';
 
@@ -115,5 +119,64 @@ describe('useEnrollmentFormState', () => {
 
     expect(result.current.formState.group?.participants).toHaveLength(3);
     expect(result.current.formState.group?.participants[0].name).toBe('김참가');
+  });
+
+  test('복구된 initialFormState를 초기 상태로 사용한다', () => {
+    const initialFormState = buildGroupDraft({ agreedToTerms: false });
+    const { result } = renderHook(() =>
+      useEnrollmentFormState({ courses: COURSES, initialFormState }),
+    );
+
+    expect(result.current.formState).toEqual(initialFormState);
+    expect(result.current.selectedCourse?.id).toBe(
+      'course-react-fundamentals',
+    );
+  });
+
+  test('replaceFormState는 상태를 교체하고 오류와 touched 상태를 초기화한다', () => {
+    const { result } = renderHook(() =>
+      useEnrollmentFormState({ courses: COURSES }),
+    );
+    const nextFormState = buildPersonalDraft({
+      selectedCourseId: 'course-typescript-forms',
+      agreedToTerms: false,
+    });
+
+    act(() => {
+      result.current.blurField('applicant.email');
+      result.current.setErrors({
+        selectedCourseId: '수강할 강의를 선택해 주세요.',
+      });
+    });
+
+    expect(result.current.touchedFields['applicant.email']).toBe(true);
+    expect(result.current.errors.selectedCourseId).toBe(
+      '수강할 강의를 선택해 주세요.',
+    );
+
+    act(() => {
+      result.current.replaceFormState(nextFormState);
+    });
+
+    expect(result.current.formState).toEqual(nextFormState);
+    expect(result.current.errors).toEqual({});
+    expect(result.current.touchedFields).toEqual({});
+  });
+
+  test('resetErrors는 입력값을 유지하면서 오류만 초기화한다', () => {
+    const { result } = renderHook(() =>
+      useEnrollmentFormState({ courses: COURSES }),
+    );
+
+    act(() => {
+      result.current.updateApplicantField('name', '홍길동');
+      result.current.setErrors({
+        'applicant.email': '이메일 형식으로 입력해 주세요.',
+      });
+      result.current.resetErrors();
+    });
+
+    expect(result.current.formState.applicant.name).toBe('홍길동');
+    expect(result.current.errors).toEqual({});
   });
 });

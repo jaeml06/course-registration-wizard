@@ -29,6 +29,7 @@ type TouchedFields = Partial<Record<FieldPath, true>>;
 
 interface UseEnrollmentFormStateOptions {
   courses: Course[];
+  initialFormState?: EnrollmentFormState;
   confirmGroupReset?: () => boolean;
 }
 
@@ -41,10 +42,11 @@ function removeFieldError(errors: ValidationErrors, field: FieldPath) {
 
 export function useEnrollmentFormState({
   courses,
+  initialFormState,
   confirmGroupReset,
 }: UseEnrollmentFormStateOptions) {
   const [formState, setFormState] = useState<EnrollmentFormState>(() =>
-    createInitialEnrollmentFormState(),
+    initialFormState ?? createInitialEnrollmentFormState(),
   );
   const [touchedFields, setTouchedFields] = useState<TouchedFields>({});
   const [errors, setErrors] = useState<ValidationErrors>({});
@@ -155,6 +157,16 @@ export function useEnrollmentFormState({
     setErrors(nextErrors);
   }
 
+  function replaceFormState(nextFormState: EnrollmentFormState) {
+    setFormState(nextFormState);
+    setTouchedFields({});
+    setErrors({});
+  }
+
+  function resetErrors() {
+    setErrors({});
+  }
+
   const selectedCourse = useMemo(
     () => courses.find((course) => course.id === formState.selectedCourseId),
     [courses, formState.selectedCourseId],
@@ -175,5 +187,7 @@ export function useEnrollmentFormState({
     blurField,
     validateStep,
     getStepErrors,
+    replaceFormState,
+    resetErrors,
   };
 }
