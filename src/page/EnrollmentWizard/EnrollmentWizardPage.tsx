@@ -19,6 +19,8 @@ import {
 } from '../../util/enrollmentDraftStorage';
 import { hasMeaningfulEnrollmentData } from '../../util/enrollmentFormState';
 import { isCourseFull } from '../../util/courseCapacity';
+import { fieldPathToElementId } from '../../util/fieldElementId';
+import { firstErrorFieldForStep } from '../../util/firstErrorField';
 
 import { ApplicantInfoStep } from './components/ApplicantInfoStep';
 import { CourseSelectionStep } from './components/CourseSelectionStep';
@@ -153,20 +155,10 @@ export function EnrollmentWizardPage({
     });
 
     if (!isValid) {
-      const field = firstErrorFieldForStep(currentStep, nextErrors);
-      firstErrorFieldRef.current = field;
-      requestAnimationFrame(() => {
-        const nextField = field;
-        if (!nextField) {
-          return;
-        }
-
-        const element = document.getElementById(
-          fieldPathToElementId(nextField),
-        );
-        element?.focus();
-        scrollElementIntoView(element);
-      });
+      firstErrorFieldRef.current = firstErrorFieldForStep(
+        currentStep,
+        nextErrors,
+      );
       return;
     }
 
@@ -345,99 +337,10 @@ function readInitialDraft(): DraftRecoveryResult {
   return readEnrollmentDraft(window.sessionStorage);
 }
 
-function fieldPathToElementId(field: FieldPath): string {
-  if (field === 'selectedCourseId') {
-    return 'course-step-title';
-  }
-
-  if (field === 'agreedToTerms') {
-    return 'agreed-to-terms';
-  }
-
-  if (field === 'applicant.name') {
-    return 'applicant-name';
-  }
-
-  if (field === 'applicant.email') {
-    return 'applicant-email';
-  }
-
-  if (field === 'applicant.phone') {
-    return 'applicant-phone';
-  }
-
-  if (field === 'applicant.motivation') {
-    return 'applicant-motivation';
-  }
-
-  if (field === 'group.organizationName') {
-    return 'group-organization-name';
-  }
-
-  if (field === 'group.headCount') {
-    return 'group-head-count';
-  }
-
-  if (field === 'group.contactPerson') {
-    return 'group-contact-person';
-  }
-
-  const participantMatch = field.match(
-    /^group\.participants\.(\d+)\.(name|email)$/,
-  );
-
-  if (participantMatch) {
-    return `group-participant-${participantMatch[1]}-${participantMatch[2]}`;
-  }
-
-  return field;
-}
-
 function scrollElementIntoView(element: HTMLElement | null) {
   if (!element || !('scrollIntoView' in element)) {
     return;
   }
 
   element.scrollIntoView({ block: 'center' });
-}
-
-function firstErrorFieldForStep(
-  step: EnrollmentStep,
-  errors: Partial<Record<FieldPath, string>>,
-): FieldPath | null {
-  const fieldsByStep: Record<EnrollmentStep, FieldPath[]> = {
-    course: ['selectedCourseId'],
-    applicant: [
-      'applicant.name',
-      'applicant.email',
-      'applicant.phone',
-      'applicant.motivation',
-      'group.organizationName',
-      'group.headCount',
-      'group.contactPerson',
-      'group.participants.0.name',
-      'group.participants.0.email',
-      'group.participants.1.name',
-      'group.participants.1.email',
-      'group.participants.2.name',
-      'group.participants.2.email',
-      'group.participants.3.name',
-      'group.participants.3.email',
-      'group.participants.4.name',
-      'group.participants.4.email',
-      'group.participants.5.name',
-      'group.participants.5.email',
-      'group.participants.6.name',
-      'group.participants.6.email',
-      'group.participants.7.name',
-      'group.participants.7.email',
-      'group.participants.8.name',
-      'group.participants.8.email',
-      'group.participants.9.name',
-      'group.participants.9.email',
-    ],
-    review: ['agreedToTerms'],
-  };
-
-  return fieldsByStep[step].find((field) => errors[field]) ?? null;
 }
