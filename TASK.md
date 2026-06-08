@@ -1,14 +1,15 @@
 # Course Registration Wizard Remaining Tasks
 
-이 문서는 현재 구현된 **API 통합 Funnel Wizard slice** 기준으로 완료된 핵심 작업과 남은 선택 작업을 정리한다.
+이 문서는 현재 구현된 **API 통합 + P3 선택 구현 Wizard slice** 기준으로 완료된 핵심 작업과 남은 확인 작업을 정리한다.
 
 현재 기준:
 
 - 작업 브랜치: `main`
 - 기본 3단계 Wizard 구현: 완료
 - API 통합: 완료
+- P3 선택 구현: 임시 저장, 이탈 방지, 반응형 레이아웃 보강 완료
 - 자동 검증 기준: `npm run test -- --run`, `npm run lint`, `npm run typecheck`, `npm run build` 실행 대상
-- 현재 제약: 개발 환경에서는 MSW Mock API가 `/api/courses`, `/api/enrollments`를 응답하며, 실제 운영 backend 영속 저장은 범위 밖
+- 현재 제약: 개발 환경에서는 MSW Mock API가 `/api/courses`, `/api/enrollments`를 응답하며, 실제 운영 backend 영속 저장과 backend draft 저장은 범위 밖
 
 ```text
 현재 상태
@@ -17,6 +18,8 @@
   API 조회/제출 연결 완료
       ↓
   서버 에러 복구 UX 통합 테스트 완료
+      ↓
+  P3 임시 저장 / 이탈 방지 / 모바일 반응형 보강 완료
       ↓
   README / 체크리스트 정리
       ↓
@@ -181,14 +184,14 @@ git status --short --branch
 
 목표: 핵심 요구사항이 안정화된 뒤 추가 점수 영역을 선택적으로 구현한다.
 
-- [ ] 임시 저장을 구현한다.
+- [x] 임시 저장을 구현한다.
   - 새로고침 후에도 입력 데이터 복구
   - 저장 데이터 버전 관리 또는 스키마 변경 대비
   - 제출 성공 후 임시 저장 데이터 삭제
-- [ ] 브라우저 이탈 방지를 구현한다.
+- [x] 브라우저 이탈 방지를 구현한다.
   - 입력 데이터가 있는 경우 뒤로가기/닫기 전 확인
   - 제출 성공 상태에서는 확인을 띄우지 않음
-- [ ] 반응형 레이아웃을 보강한다.
+- [x] 반응형 레이아웃을 보강한다.
   - 모바일에서 스텝별 세로 스크롤 최적화
   - 버튼/라디오/입력 필드 터치 영역 확인
   - 긴 에러 메시지 줄바꿈 확인
@@ -199,5 +202,8 @@ git status --short --branch
 - [x] 제출 성공/실패/재시도 UX가 실제 API 실패 시나리오에서도 동작한다.
 - [x] 입력 데이터는 스텝 이동, 수정 링크, 제출 실패 후에도 유지된다.
 - [x] `COURSE_FULL`, `DUPLICATE_ENROLLMENT`, `INVALID_INPUT`이 한국어 메시지와 필드 에러로 처리된다.
+- [x] 작성 중 draft가 같은 탭 세션에서 복구되고 제출 성공 후 삭제된다.
+- [x] 의미 있는 입력이 있을 때 브라우저 이탈 확인이 동작하고, 빈 폼/제출 성공 상태에서는 동작하지 않는다.
+- [x] 모바일 폭에서 주요 입력, 오류 메시지, 수정/제출/재시도 버튼이 줄바꿈과 터치 영역 기준을 유지한다.
 - [x] `README.md`, `ACCEPTANCE_CHECKLIST.md`, `TASK.md`가 최종 구현 상태와 일치한다.
 - [x] `npm run test -- --run`, `npm run lint`, `npm run typecheck`, `npm run build`가 모두 통과한다.
