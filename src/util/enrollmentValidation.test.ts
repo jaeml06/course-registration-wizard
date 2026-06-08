@@ -217,4 +217,61 @@ describe('enrollmentValidation', () => {
       selectedCourseId: '수강할 강의를 선택해 주세요.',
     });
   });
+
+  test('복구된 단체 draft도 참가자 수, 이메일 중복, 신청자 이메일 중복, 잔여 정원 검증을 받는다', () => {
+    const participantCountMismatch = buildGroupDraft({
+      group: {
+        organizationName: '코스 주식회사',
+        headCount: 3,
+        participants: [
+          { name: '김참가', email: 'member1@example.com' },
+          { name: '이참가', email: 'member2@example.com' },
+        ],
+        contactPerson: '010-2222-3333',
+      },
+    });
+    const duplicateEmails = buildGroupDraft({
+      applicant: {
+        name: '홍길동',
+        email: 'student@example.com',
+        phone: '010-1234-5678',
+        motivation: '',
+      },
+      group: {
+        organizationName: '코스 주식회사',
+        headCount: 2,
+        participants: [
+          { name: '김참가', email: 'student@example.com' },
+          { name: '이참가', email: 'student@example.com' },
+        ],
+        contactPerson: '010-2222-3333',
+      },
+    });
+    const overCapacity = buildGroupDraft({
+      selectedCourseId: 'course-typescript-forms',
+      group: {
+        organizationName: '코스 주식회사',
+        headCount: 3,
+        participants: [
+          { name: '김참가', email: 'member1@example.com' },
+          { name: '이참가', email: 'member2@example.com' },
+          { name: '박참가', email: 'member3@example.com' },
+        ],
+        contactPerson: '010-2222-3333',
+      },
+    });
+
+    expect(validateApplicantStep(participantCountMismatch, COURSES)).toMatchObject({
+      'group.headCount': '참가자 명단은 신청 인원수 3명과 같아야 합니다.',
+    });
+    expect(validateApplicantStep(duplicateEmails, COURSES)).toMatchObject({
+      'group.participants.0.email':
+        '참가자 이메일은 서로 중복될 수 없습니다.',
+      'group.participants.1.email':
+        '참가자 이메일은 서로 중복될 수 없습니다.',
+    });
+    expect(validateApplicantStep(overCapacity, COURSES)).toMatchObject({
+      'group.headCount': '선택한 강의의 잔여 정원은 2명입니다.',
+    });
+  });
 });

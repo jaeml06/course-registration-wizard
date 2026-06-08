@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 
 import {
   COURSE_CATEGORIES,
-  COURSE_CATEGORY_LABELS,
 } from '../../constants/courses';
 import { useFunnel } from '../../hooks/useFunnel';
 import { useCoursesQuery } from '../../hooks/query/useCoursesQuery';
@@ -13,13 +12,22 @@ import type {
 } from '../../type/enrollment';
 import type { EnrollmentStep, FieldPath } from '../../type/enrollmentForm';
 import { createEnrollmentPayload } from '../../util/enrollmentPayload';
+import {
+  INVALID_DRAFT_MESSAGE,
+  readEnrollmentDraft,
+  type DraftRecoveryResult,
+} from '../../util/enrollmentDraftStorage';
+import { hasMeaningfulEnrollmentData } from '../../util/enrollmentFormState';
+import { isCourseFull } from '../../util/courseCapacity';
 
 import { ApplicantInfoStep } from './components/ApplicantInfoStep';
 import { CourseSelectionStep } from './components/CourseSelectionStep';
 import { EnrollmentReviewStep } from './components/EnrollmentReviewStep';
 import { StepNavigation } from './components/StepNavigation';
+import { useEnrollmentDraftPersistence } from './hooks/useEnrollmentDraftPersistence';
 import { useEnrollmentFormState } from './hooks/useEnrollmentFormState';
 import { useEnrollmentSubmissionState } from './hooks/useEnrollmentSubmissionState';
+import { useLeavePrevention } from './hooks/useLeavePrevention';
 
 type CourseCategoryFilter = CourseCategory | 'all';
 
@@ -40,6 +48,22 @@ const EMPTY_COURSES: Course[] = [];
 export function EnrollmentWizardPage({
   submitEnrollment,
 }: EnrollmentWizardPageProps) {
+  const [draftRecovery] = useState<DraftRecoveryResult>(() =>
+    readInitialDraft(),
+  );
+  const recoveredDraft =
+    draftRecovery.status === 'restored' ? draftRecovery.draft : null;
+  const [recoveryNotice] = useState<string | null>(() => {
+    if (draftRecovery.status === 'empty') {
+      return null;
+    }
+
+    return draftRecovery.message;
+  });
+  const [courseReselectNotice, setCourseReselectNotice] = useState<
+    string | null
+  >(null);
+  const recoveredCourseCheckedRef = useRef(false);
   const [selectedCategory, setSelectedCategory] =
     useState<CourseCategoryFilter>('all');
   const coursesQuery = useCoursesQuery(selectedCategory);
@@ -51,12 +75,23 @@ export function EnrollmentWizardPage({
       ? 'failed'
       : 'ready';
   const { currentStep, currentIndex, canGoBack, back, next, goTo } =
-    useFunnel(STEPS);
+    useFunnel(STEPS, { initialStep: recoveredDraft?.currentStep });
   const form = useEnrollmentFormState({
     courses,
+    initialFormState: recoveredDraft?.formState,
   });
   const submission = useEnrollmentSubmissionState({ submitEnrollment });
   const firstErrorFieldRef = useRef<FieldPath | null>(null);
+  const shouldBlockLeave =
+    hasMeaningfulEnrollmentData(form.formState) &&
+    submission.status !== 'succeeded';
+
+  useEnrollmentDraftPersistence({
+    formState: form.formState,
+    currentStep,
+    submissionStatus: submission.status,
+  });
+  useLeavePrevention(shouldBlockLeave);
 
   useEffect(() => {
     if (!firstErrorFieldRef.current) {
@@ -79,12 +114,27 @@ export function EnrollmentWizardPage({
       return;
     }
 
-    const hasSelectedCourse = courses.some(
+    const selectedCourse = courses.find(
       (course) => course.id === form.formState.selectedCourseId,
     );
+    const isRecoveredCourseCheck =
+      draftRecovery.status === 'restored' && !recoveredCourseCheckedRef.current;
 
-    if (hasSelectedCourse) {
+    if (isRecoveredCourseCheck) {
+      recoveredCourseCheckedRef.current = true;
+    }
+
+    if (selectedCourse && !isCourseFull(selectedCourse)) {
       return;
+    }
+
+    if (isRecoveredCourseCheck) {
+      goTo('course');
+      setCourseReselectNotice(
+        '저장된 강의를 현재 신청할 수 없어 다시 선택해 주세요.',
+      );
+    } else {
+      setCourseReselectNotice(null);
     }
 
     form.updateSelectedCourse('');
@@ -92,7 +142,7 @@ export function EnrollmentWizardPage({
       ...form.errors,
       selectedCourseId: '수강할 강의를 선택해 주세요.',
     });
-  }, [courses, form, listStatus]);
+  }, [courses, draftRecovery.status, form, goTo, listStatus]);
 
   function handleNext() {
     const nextErrors = form.getStepErrors(currentStep);
@@ -216,19 +266,22 @@ export function EnrollmentWizardPage({
 
   return (
     <main className="min-h-screen bg-slate-50 text-slate-950">
-      <div className="mx-auto grid w-full max-w-5xl gap-6 px-5 py-8 md:px-8">
-        <header className="grid gap-3">
+      <div className="mx-auto grid w-full max-w-5xl gap-6 px-4 py-6 md:px-8 md:py-8">
+        <header className="grid min-w-0 gap-3">
           <p className="text-sm font-semibold text-blue-700">
             Course Registration Wizard
           </p>
-          <h1 className="text-3xl font-bold tracking-normal">
+          <h1 className="break-words text-3xl font-bold tracking-normal">
             수강 신청 Wizard
           </h1>
-          <nav aria-label="신청 단계" className="grid gap-2 sm:grid-cols-3">
+          <nav
+            aria-label="신청 단계"
+            className="grid min-w-0 gap-2 sm:grid-cols-3"
+          >
             {STEPS.map((step, index) => (
               <div
                 key={step}
-                className={`rounded-md border p-3 text-sm ${
+                className={`min-w-0 break-words rounded-md border p-3 text-sm ${
                   index === currentIndex
                     ? 'border-slate-900 bg-white font-bold text-slate-950'
                     : 'border-slate-200 bg-white text-slate-600'
@@ -241,7 +294,29 @@ export function EnrollmentWizardPage({
           </nav>
         </header>
 
-        <div className="rounded-md border border-slate-200 bg-white p-5 shadow-sm">
+        {recoveryNotice ? (
+          <p
+            className={`min-w-0 break-words rounded-md border p-4 text-sm font-semibold ${
+              recoveryNotice === INVALID_DRAFT_MESSAGE
+                ? 'border-amber-200 bg-amber-50 text-amber-900'
+                : 'border-blue-200 bg-blue-50 text-blue-900'
+            }`}
+            role="status"
+          >
+            {recoveryNotice}
+          </p>
+        ) : null}
+
+        {courseReselectNotice ? (
+          <p
+            className="min-w-0 break-words rounded-md border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900"
+            role="alert"
+          >
+            {courseReselectNotice}
+          </p>
+        ) : null}
+
+        <div className="min-w-0 rounded-md border border-slate-200 bg-white p-4 shadow-sm md:p-5">
           {renderCurrentStep()}
 
           {currentStep !== 'review' ? (
@@ -256,6 +331,18 @@ export function EnrollmentWizardPage({
       </div>
     </main>
   );
+}
+
+function readInitialDraft(): DraftRecoveryResult {
+  if (typeof window === 'undefined') {
+    return {
+      status: 'unavailable',
+      draft: null,
+      message: '임시 저장을 사용할 수 없습니다. 신청은 계속 진행할 수 있습니다.',
+    };
+  }
+
+  return readEnrollmentDraft(window.sessionStorage);
 }
 
 function fieldPathToElementId(field: FieldPath): string {
