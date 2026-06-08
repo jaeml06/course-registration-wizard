@@ -168,6 +168,9 @@ export function CourseSelectionStep({
                     className="flex min-w-0 items-start gap-2 break-words text-base font-bold text-slate-950"
                     data-testid={`course-title-${course.id}`}
                   >
+                    {/* onChange는 키보드(방향키/스페이스) 선택을, onClick은 "이미 선택된 강의를
+                        다시 클릭"하는 경우를 처리한다(이미 체크된 라디오는 onChange가 안 뜬다).
+                        마감 강의는 disabled라 onClick의 추가 가드 없이도 호출되지 않는다. */}
                     <input
                       type="radio"
                       name="course"
@@ -175,11 +178,7 @@ export function CourseSelectionStep({
                       disabled={isFull}
                       checked={isSelected}
                       onChange={() => onSelectCourse(course.id)}
-                      onClick={() => {
-                        if (!isFull) {
-                          onSelectCourse(course.id);
-                        }
-                      }}
+                      onClick={() => onSelectCourse(course.id)}
                     />
                     {course.title}
                   </span>
