@@ -2,12 +2,11 @@ import type { Course } from '../../../type/course';
 import type { EnrollmentResponse } from '../../../type/enrollment';
 import type {
   EnrollmentFormState,
+  SubmissionStatus,
   ValidationErrors,
 } from '../../../type/enrollmentForm';
 
 import { FieldError } from './FieldError';
-
-type SubmissionStatus = 'idle' | 'submitting' | 'succeeded' | 'failed';
 
 interface EnrollmentReviewStepProps {
   formState: EnrollmentFormState;
